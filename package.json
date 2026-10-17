@@ -1,0 +1,16 @@
+{
+  "name": "footnote",
+  "private": true,
+  "type": "module",
+  "workspaces": ["glasses", "web"],
+  "engines": { "node": ">=22.18.0" },
+  "scripts": {
+    "dev": "npm run dev -w glasses",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build --workspaces",
+    "test": "node --experimental-strip-types --test glasses/tests/*.test.ts",
+    "simulate": "npm run simulate -w glasses --",
+    "pack": "npm run pack -w glasses",
+    "pack:demo": "npm run pack:demo -w glasses"
+  }
+}

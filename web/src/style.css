@@ -1,0 +1,20 @@
+@import './theme.css';
+.digest { max-width: 1040px; margin: auto; padding: 0 40px; }
+.digest-intro { margin: 72px 0 64px; }
+.digest-intro h1 { font-size: clamp(4rem, 10vw, 7rem); line-height: .98; letter-spacing: -.065em; font-weight: 450; margin: 24px 0 30px; }
+.digest-intro > p:last-child { font-size: 1.07rem; color: var(--muted); line-height: 1.8; }
+.digest-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 42px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.digest-toolbar > h2 { font-size: 1rem; color: var(--muted); }
+.digest-section { display: grid; grid-template-columns: 1fr 1.65fr; gap: 50px; margin-bottom: 52px; }
+.digest-section .section-heading { display: block; }
+.digest-section .section-heading > span { display: block; margin-top: 10px; font-size: 2rem; font-weight: 400; color: var(--accent); }
+.digest-section .entries { margin: 0; }
+.digest-section .entries li { display: block; }
+.digest-section .entries li:first-child { border-top: 0; padding-top: 0; }
+.digest-section .entries span { display: block; margin-top: 5px; overflow-wrap: anywhere; }
+.digest-section .entries strong { overflow-wrap: anywhere; }
+.quiet-note { display: flex; align-items: flex-start; gap: 24px; background: var(--panel); padding: 28px 32px; border-radius: 12px; margin: 64px 0 44px; }
+.quiet-note > span { color: var(--accent); font-size: 3.5rem; line-height: 1; }
+.quiet-note p { margin: 0; font-size: 1.05rem; }
+.quiet-note small { display: block; font-size: .88rem; line-height: 1.7; color: var(--muted); max-width: 40em; margin-top: 6px; }
+@media (max-width: 650px) { .digest { padding: 0 22px; } .digest-intro { margin: 48px 0; } .digest-section { grid-template-columns: 1fr; gap: 24px; } .digest-section .section-heading { display: flex; } .digest-section .section-heading > span { font-size: 1.2rem; margin: 0; } .quiet-note { padding: 24px; } .desktop-break { display: none; } }

@@ -1,0 +1,28 @@
+@import url('../../web/src/theme.css');
+
+.companion { max-width: 780px; margin: auto; padding: 0 24px; }
+.intro { padding: 54px 0 36px; }
+.intro h1 { margin: 12px 0 18px; font-size: clamp(2.4rem, 8vw, 4rem); line-height: 1.07; font-weight: 450; letter-spacing: -.055em; }
+.intro > p:last-child { max-width: 34em; color: var(--muted); }
+.meeting-panel { padding-top: 8px; }
+.meeting-controls, .card-controls, .demo-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+.meeting-controls button { flex: 1; min-width: 135px; }
+.card-controls button { flex: 1; min-width: 120px; }
+.glasses-preview { padding: 16px; margin: 26px 0 12px; border: 1px solid var(--line); border-radius: 18px; background: #050a06; }
+.display-canvas { position: relative; width: 100%; aspect-ratio: 2; font: clamp(9px, 2.4vw, 17px)/1.5 ui-monospace, 'SFMono-Regular', Consolas, monospace; color: #a9ff91; overflow: hidden; }
+.display-canvas p { position: absolute; margin: 0; left: 0; width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+#display-status { top: 0; opacity: .65; height: 14%; }
+#display-term { top: 25%; height: 20%; }
+#display-detail { top: 45.8%; height: 42%; opacity: .82; }
+.hint { font-size: .83rem; color: var(--muted); line-height: 1.6; }
+#meeting-status { color: var(--accent); font-size: .88rem; }
+.draft { padding: 24px 0; border-bottom: 1px solid var(--line); }
+.draft h3 { margin-top: 0; }
+.draft-body { white-space: pre-wrap; line-height: 1.7; }
+.subject { color: var(--muted); font-size: .9rem; }
+details { border-top: 1px solid var(--line); padding: 24px 0; }
+summary { cursor: pointer; color: var(--muted); min-height: 24px; }
+form { display: grid; gap: 12px; margin-top: 18px; }
+textarea { width: 100%; resize: vertical; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: inherit; line-height: 1.6; }
+form button { justify-self: start; }
+@media (max-width: 450px) { .companion { padding: 0 18px; } .mode { max-width: 145px; text-align: right; } .intro { padding-top: 36px; } }
