@@ -3,6 +3,7 @@ dist/
 *.ehpk
 .env
 .env.*
+env
 !.env.example
 *.local
 .DS_Store

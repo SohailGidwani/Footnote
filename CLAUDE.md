@@ -33,15 +33,17 @@ Draft = {draft_id, to_name, to_email, subject, body, terms[]}
 A term is never returned as a card if muted or seen >= 3 times.
 The backend never returns more than 2 cards per /listen call.
 The glossary fast path returns immediately. StepFun (slow path) runs in the
-background, capped at 2.5 s; its cards are returned with the NEXT /listen
-response for that session.
+background, capped at 12 s; its cards are returned with the first /listen
+response after the explanation is ready. Drafts start when a question is queued;
+/session/{session_id}/end returns the saved draft or its template promptly.
 
 ## Hard rules
 - No API keys in /glasses or /web. All third-party calls go through /backend.
 - Backend sends CORS headers for every origin and answers OPTIONS preflights.
 - Glasses UI: plain text only, no bold/size control; brightness via textColor 0-4.
 - Root-page double press calls shutDownPageContainer(1). Never exit silently.
-- Target: card on glasses within 3 s of the word being spoken.
+- Target: glossary card on glasses within 3 s of the word being spoken;
+  uncatalogued StepFun terms appear after background inference finishes.
 - Email: Resend API only; every draft goes to env DEMO_INBOX. Company-pack emails are display-only.
 - Logging: plain Python logging with per-step timings (stt_ms, match_ms, llm_ms). No Sentry.
 - Prefer the simplest thing that demos reliably. No new dependencies without reason.
