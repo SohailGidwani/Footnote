@@ -245,3 +245,12 @@ unrun check as passed.
   the local agent endpoint. ASI:One chat, Agentverse profile URL and shared
   chat URL remain unverified/unrecorded. The agent ran locally on this Windows
   checkout; it has not been deployed.
+
+### 2026-10-17 — Agentverse mailbox connected
+
+- After the account-side Inspector connection, the running local agent logged
+  `Successfully registered as mailbox agent in Agentverse`.
+- `mailbox=True` was already present in `agent/agent.py`; the Inspector's
+  configuration reminder required no code change or restart.
+- A live ASI:One Bluebird chat and the public profile/chat URLs remain to be
+  verified and recorded. The agent is still running locally for that check.
