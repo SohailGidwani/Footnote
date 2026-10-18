@@ -22,6 +22,11 @@ suggest a person to ask; they do not confirm ownership. Read `CLAUDE.md` and
 Record any proposed contract change at the top of this file before changing it.
 The status below is the initial handoff snapshot; current changes are in the changelog.
 
+Current local Fetch agent: **Footnote Jargon Decoder**, `@footnote-jargon-decoder`.
+[ASI:One page](https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r).
+Public demo chat: https://asi1.ai/shared-chat/c130fcb3-8bf2-4d92-b88f-e8d17cf1c777
+Older agent links below are historical; see the identity replacement entry at the bottom.
+
 ## Status and evidence
 
 - Baseline: `50b146e` (Kartik's backend push). No application/backend code changed
@@ -477,3 +482,149 @@ unrun check as passed.
   health (200) and listen preflight (204 with CORS). Vite serves the new ignored
   glasses env; web remains on localhost. No meeting data was reset or email sent.
 - Physical G2 reopening and visual confirmation remain pending Sohail's test.
+
+### 2026-10-17 — Sohail's local agent environment
+
+- Sohail created a separate local agent identity and registered its mailbox.
+  Its address differs from Kartik's existing profile, so do not reuse the older
+  profile/chat URLs to test this process. The seed remains in ignored `agent/.env`.
+- Local API root returned 404 as expected; `/agent_info` returned 200. Opened the
+  SDK's full Agentverse Inspector link in Chrome and confirmed the local agent.
+- ASI:One questions reached the old process, but reply resolution and mailbox
+  polling failed with `Can not decode content-encoding: br`. Reproduced the exact
+  decoder TypeError in Conda Python 3.13.9: `aiohttp 3.14.3` with `brotlicffi 1.0.9.2`.
+- Created ignored `agent/.venv` using Python 3.11.15 and installed the declared
+  requirements plus pytest. All six agent tests pass. Restarted with the existing
+  env; confirmed its fingerprint and registered address were unchanged. Logs show
+  active registration, published chat manifest and mailbox registration success.
+- No agent application code or global Conda package was changed. The agent uses
+  the same local backend as Sohail's G2. Fresh ASI:One reply verification is pending.
+
+### 2026-10-17 — Live agent reply and ASI mention parsing
+
+- Sohail confirmed the local agent replied correctly to Bluebird in ASI:One.
+- Ridgeline returned only help. Cached incoming payloads showed ASI:One prefixes
+  `@agent...` before the question, causing the anchored unknown-term parser to
+  miss it. Strip that leading address before routing; cover spaces and newlines
+  through the real chat handler. Seven agent tests and both subtests pass.
+- Ridgeline is absent from the company pack and current local digest. Term
+  lookups remain glossary-only and read-only; they do not trigger inference or
+  add sightings. Expected reply is a clear missing-glossary message. Restarted
+  the same local identity with the fix; its new live Ridgeline reply is unverified.
+
+### 2026-10-17 — Agent reads learned meeting definitions
+
+- Sohail expects the agent to reuse definitions learned during G2 meetings.
+  Keep direct company-pack lookup first, then check existing read-only `GET /digest`
+  for a matching recent term. Label model meanings as inferred and their people
+  as suggested contacts. No API paths/shapes changed, no lookup calls `/listen_text`,
+  and unknown names are not invented or silently matched to a different project.
+- Ten agent tests and both subtests pass, including glossary priority, inferred
+  contact labeling, backend failure and distinct Red Line/Ridgeline names. Restarted
+  the existing agent identity. Live local-backend reads answered Pinecrest and
+  Red Line; a before/after check confirmed sighting state was unchanged.
+- The current store has Red Line and Pinecrest, but no Ridgeline. One explicit
+  typed-meeting rehearsal for Ridgeline hit the existing 25 s StepFun cap:
+  `llm_ms=25002 candidate_count=1 added_count=0`. Ended that test meeting with
+  zero drafts and confirmed existing queue/drafts were unchanged.
+- Sohail confirmed Red Line was a transcription error and authorized correcting
+  the saved name to Ridgeline. Changed only that term's display name, keeping its
+  ID, meaning, contact and source. Transaction assertions confirmed all sightings,
+  queues and drafts were unchanged; the already-sent email still says Red Line.
+- Restarted the backend to refresh its matcher. Verified a mention-prefixed
+  Ridgeline lookup against the live local digest returns `Telemetry migration to
+  the new cluster`, labeled inferred, with Marcus Lindqvist (Platform) as suggested
+  contact. Lookup did not change sightings. The agent remains active with its
+  existing identity; the updated ASI:One reply still needs Sohail's confirmation.
+
+### 2026-10-17 — Private agent identity and profile replacement
+
+- Sohail confirmed the correct Ridgeline answer in ASI:One on the previous agent.
+  Native ASI:One mobile-app availability remains unverified.
+- Found that the running local identity used the public example seed. This
+  corrects the earlier assumption that its seed was private. Sohail authorized
+  replacement; generated a new 256-bit random seed in ignored `agent/.env`, with
+  file permissions 0600. Kept other env settings unchanged; no secret is in this file.
+- Registered the replacement through Agentverse's identity challenge and API,
+  preserving the current README, both badges and Agent Chat Protocol. Verified
+  the name **Footnote Jargon Decoder**, handle `footnote-jargon-decoder`, and the
+  description covering jargon, learned terms, meeting prep and suggested contacts.
+- Moved the handle to the new identity. The previous profile is marked
+  **Footnote (retired)** with a distinct retired handle; its old chats were not deleted.
+- Stopped the previous process and started the replacement locally on port 8001.
+  Confirmed saved seed matches `/agent_info`, chat manifest publication, public
+  Almanac status `active`, and a mailbox endpoint. Bluebird and Ridgeline local
+  read-only answers are correct. Fresh ASI:One verification is recorded below.
+- Added a startup guard rejecting the public example seed; its regression test
+  failed before the fix. All 11 agent tests and both subtests pass.
+- Verified authenticated mailbox reads return 200. A signed synthetic chat
+  acknowledgement sent through the public mailbox endpoint was retrieved by the
+  running agent and appeared in its local message history. This tests transport,
+  not a fresh ASI:One conversation; no other recipient was contacted.
+- Current Agentverse profile:
+  https://agentverse.ai/agents/details/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r/profile
+- Current ASI:One page (a new chat, not yet a public shared-chat submission link):
+  https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r
+- Keep the local agent running. Do not overwrite its env or restore the example
+  seed. No backend/data/client code, deployment, email or Git commit was changed here.
+
+### 2026-10-17 — Replacement agent verified in ASI:One
+
+- Sohail supplied a screenshot showing the replacement address replying in
+  ASI:One with the correct display name and `@footnote-jargon-decoder` handle.
+- Verified in that conversation: Bluebird meaning and Priya Raman (Autonomy);
+  Ridgeline meaning labeled inferred with Marcus Lindqvist (Platform) suggested;
+  `Who should I meet?`; `What did I learn today?`; and the help response.
+- Sohail retested the replacement in the native ASI:One phone app; it still
+  reports that the agent is unavailable in the mobile app. Native-app testing
+  is blocked by current platform support: Sohail checked directly with the
+  Fetch.ai team, who confirmed third-party agents are not yet available in the
+  native mobile app and that working on ASI:One web is sufficient. This is
+  team guidance relayed by Sohail, not an independently verified public policy.
+  No Footnote mobile compatibility fix is required for the current submission.
+- The replacement's public shared-chat submission URL is recorded at the top
+  and in the shared-chat entry below; it is separate from the ASI:One agent page.
+- Local mention-prefixed `Prep me for my 2pm platform sync` returns five glossary
+  entries with meanings and owners: 2pm platform sync, FCS, golden path, Bluebird,
+  and DRI. This is a fixed selection from the company pack, not calendar/agenda
+  inference. Sohail then supplied a screenshot confirming ASI:One delivers all five
+  entries with the expected meanings and owners on the replacement identity.
+  Native-app access is unsupported per the Fetch.ai team guidance above.
+  Phone-browser access remains untested; it is optional for the current submission.
+
+### 2026-10-17 — Pulled Kartik's Afterimage UI
+
+- Fast-forwarded main to `64133b6`; restored all local agent work and merged both
+  handoff updates without conflicts. All four local env files are unchanged.
+- Verified 24 client tests, 79 backend tests, 11 agent tests plus both subtests,
+  and both production client builds. Backend retains its existing dependency warning.
+- Restarted the backend for Discard support; verified its additive migration
+  preserves all existing database rows. Health, CORS preflight, Discard route,
+  both Vite servers and agent-to-backend Ridgeline lookup pass. No reset or email.
+- Sohail subsequently confirmed the UI test flow works on physical G2 and phone;
+  see the UI confirmation entry below.
+
+### 2026-10-17 — Current public shared-chat submission link
+
+- Sohail created and supplied:
+  https://asi1.ai/shared-chat/c130fcb3-8bf2-4d92-b88f-e8d17cf1c777
+- Anonymous HTTPS request, without cookies or an authorization header, returned
+  200 at that same URL with title `Meaning Of Bluebird At Halcyon` and matching
+  canonical shared-chat URL. This confirms public page reachability.
+- The page loads messages through JavaScript. The automated check confirmed
+  reachability only; Sohail subsequently opened the shared link in an incognito
+  window and confirmed everything is visible properly. Signed-out message
+  visibility passes based on Sohail's browser check. The live replies themselves
+  were also verified earlier through his screenshots.
+- Pair this link with the current Agentverse profile above for the Fetch
+  submission; older shared-chat links in this changelog are historical.
+
+### 2026-10-17 — Sohail confirms updated UI
+
+- After testing the updated UI, Sohail reported: `Yes everything works`.
+  The requested checks covered G2 border, text spacing and contact line; phrases
+  for cutover, brownout, wave planning / 2pm platform sync and Atlas; saving a
+  question, ending the meeting, and phone draft Discard / Undo.
+- Treat this as Sohail's device-test confirmation, not an independently observed
+  run or measured latency result. Sohail also confirmed full shared-chat message
+  visibility in incognito, as recorded above. No further code change was made here.

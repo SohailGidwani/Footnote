@@ -3,7 +3,7 @@
 
 # Footnote: new-hire jargon decoder
 
-Footnote helps a new Halcyon Robotics teammate understand company terms during onboarding. Ask it what a project or acronym means and it answers from the company glossary with the responsible person and team. It can prepare you for the 2pm platform sync with five relevant terms, or read the local Footnote meeting digest to recap terms learned and suggest people to meet. These questions do not record new term sightings.
+Footnote helps a new Halcyon Robotics teammate understand company terms during onboarding. Ask it what a project or acronym means and it answers from the company glossary with the responsible person and team. For terms learned in recent meetings, it can also retrieve the saved meaning and label inferred contacts as suggestions. It can prepare you for the 2pm platform sync with five relevant terms, or read the local Footnote meeting digest to recap terms learned and suggest people to meet. These questions do not record new term sightings.
 
 Keywords: onboarding, company glossary, jargon, acronyms, meeting recap, people to meet, Halcyon Robotics.
 

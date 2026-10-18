@@ -97,7 +97,7 @@ def _platform_sync_prep(pack: dict) -> str:
 
 def answer_text(query: str, pack: dict, backend_url: str) -> str:
     """Answer without creating sightings or changing meeting state."""
-    question = query.strip()
+    question = re.sub(r"^@agent1[a-z0-9]+\s+", "", query.strip(), flags=re.IGNORECASE)
     if not question:
         return HELP
     lower = question.casefold()
@@ -122,5 +122,19 @@ def answer_text(query: str, pack: dict, backend_url: str) -> str:
         return _term_answer(term, pack)
     unknown = _requested_unknown_term(question)
     if unknown:
-        return f"I do not have {unknown} in Halcyon's glossary yet. {HELP}"
+        if backend_url:
+            try:
+                learned = fetch_digest(backend_url).get("terms_learned", [])
+            except (error.URLError, TimeoutError, OSError, ValueError, json.JSONDecodeError):
+                return (f"I do not have {unknown} in Halcyon's glossary. "
+                        "I cannot check your recent meeting terms while the backend is unreachable.")
+            term = _mentioned_term(unknown, {"terms": learned})
+            if term:
+                inferred = term.get("source") == "llm"
+                origin = "Inferred from" if inferred else "From"
+                label = "Suggested contact" if inferred else "Owner"
+                return (f"{term['term']}: {term['meaning']}. {origin} your recent meeting. "
+                        f"{label}: {term['owner_name']} ({term['owner_team']}).")
+        return (f"I do not have {unknown} in Halcyon's glossary or recent meeting terms. "
+                "Mention the full name and a short explanation during a meeting, then ask again.")
     return HELP

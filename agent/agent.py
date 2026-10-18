@@ -54,10 +54,15 @@ async def handle_acknowledgement(ctx: Context, sender: str, message: ChatAcknowl
 
 def build_agent() -> Agent:
     seed = os.getenv("AGENT_SEED", "").strip()
-    if not seed:
-        raise RuntimeError("Set AGENT_SEED in the ignored agent/.env file before running")
+    if not seed or seed == "replace-with-a-long-random-secret-and-keep-it-private":
+        raise RuntimeError("Set a private AGENT_SEED in the ignored agent/.env file before running")
     agent = Agent(
-        name="footnote_new_hire",
+        name="Footnote Jargon Decoder",
+        handle="footnote-jargon-decoder",
+        description=(
+            "Explains Halcyon company jargon, recalls terms learned in Footnote meetings, "
+            "prepares you for meetings, and suggests teammates to contact."
+        ),
         seed=seed,
         port=8001,
         mailbox=True,
