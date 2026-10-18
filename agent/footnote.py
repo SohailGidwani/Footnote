@@ -12,7 +12,16 @@ PACK_PATH = Path(__file__).resolve().parent.parent / "data" / "company_pack.json
 HELP = (
     "I can explain Halcyon terms and recap your Footnote meeting. "
     "Try 'What does Bluebird mean at Halcyon?', "
-    "'What did I learn today?', or 'Who should I meet?'"
+    "'Prep me for my 2pm platform sync', 'What did I learn today?', "
+    "or 'Who should I meet?'"
+)
+
+PLATFORM_SYNC_TERMS = (
+    "t_platform_sync",
+    "t_fcs",
+    "t_golden_path",
+    "t_bluebird",
+    "t_dri",
 )
 
 
@@ -78,12 +87,23 @@ def _people_answer(digest: dict) -> str:
     return "People to meet: " + "; ".join(lines) + "." + suffix
 
 
+def _platform_sync_prep(pack: dict) -> str:
+    """Use the glossary's current meanings and owners for five meeting terms."""
+    terms = {term["id"]: term for term in pack["terms"]}
+    lines = [f"{index}. {_term_answer(terms[term_id], pack)}"
+             for index, term_id in enumerate(PLATFORM_SYNC_TERMS, start=1)]
+    return "For your 2pm platform sync, know these five terms:\n" + "\n".join(lines)
+
+
 def answer_text(query: str, pack: dict, backend_url: str) -> str:
     """Answer without creating sightings or changing meeting state."""
     question = query.strip()
     if not question:
         return HELP
     lower = question.casefold()
+    if (re.search(r"\b(prep|prepare)\b", lower)
+            and re.search(r"\bplatform\s+sync\b", lower)):
+        return _platform_sync_prep(pack)
     wants_people = any(phrase in lower for phrase in (
         "who should i meet", "who do i need to meet", "people to meet", "who should i talk to"
     ))

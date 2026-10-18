@@ -23,6 +23,15 @@ class AnswerTests(unittest.TestCase):
         self.assertIn("do not have HAL-9", answer)
 
     @patch("footnote.fetch_digest")
+    def test_platform_sync_prep_has_five_pack_terms_and_never_calls_backend(self, get_digest):
+        answer = answer_text("Prep me for my 2pm platform sync", self.pack, "http://localhost:8000")
+        self.assertEqual(answer.count("Owner:"), 5)
+        for term in ("2pm platform sync", "FCS", "golden path", "Bluebird", "DRI"):
+            self.assertIn(term + ":", answer)
+        self.assertIn("Marcus Lindqvist (Platform)", answer)
+        get_digest.assert_not_called()
+
+    @patch("footnote.fetch_digest")
     def test_digest_questions_are_read_only(self, get_digest):
         get_digest.return_value = {
             "terms_learned": [{"term": "Bluebird", "meaning": "v3 navigation stack rewrite"}],
