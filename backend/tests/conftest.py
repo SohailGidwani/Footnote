@@ -10,7 +10,7 @@ from app.main import create_app
 @pytest.fixture(autouse=True)
 def no_real_services(monkeypatch):
     """Tests never touch real keys or the network."""
-    for name in ("ELEVENLABS_API_KEY", "STEPFUN_API_KEY", "RESEND_API_KEY", "DEMO_INBOX", "ENABLE_DEBUG_RESET"):
+    for name in ("ELEVENLABS_API_KEY", "STEPFUN_API_KEY", "RESEND_API_KEY", "DEMO_INBOX", "ENABLE_DEBUG_RESET", "AGENT_API_TOKEN"):
         monkeypatch.delenv(name, raising=False)
 
 

@@ -73,6 +73,19 @@ class ChatProtocolTests(unittest.TestCase):
                 self.assertIn("Suggested contact: Marcus Lindqvist (Platform)", reply)
                 get_digest.assert_called_once()
 
+    def test_followup_tool_runs_after_ack_and_before_normal_answers(self):
+        ctx = FakeContext()
+        ctx.session = "conversation-one"
+        class Tools:
+            def reply(self, question, sender, conversation):
+                assert isinstance(ctx.sent[0][1], ChatAcknowledgement)
+                assert sender == "agent1sender" and conversation == "conversation-one"
+                return "Subject: a saved question. Preview only."
+        incoming = ChatMessage(content=[TextContent(type="text", text="Show my saved questions")])
+        with patch("agent.followups", Tools(), create=True):
+            asyncio.run(handle_chat(ctx, "agent1sender", incoming))
+        self.assertIn("Subject: a saved question", ctx.sent[1][1].content[0].text)
+
     @patch.dict(os.environ, {"STEPFUN_API_KEY": ""})
     @patch("footnote.fetch_digest", return_value={"terms_learned": [], "people_to_meet": [], "sent": []})
     def test_asi_prep_message_returns_a_brief_after_acknowledgement(self, _get_digest):

@@ -15,7 +15,8 @@ to select the Footnote project and production environment before these commands.
 2. Attach a volume at `/var/data`; set `DB_PATH=/var/data/footnote.db`.
    The image's `/tmp` default is temporary storage.
 3. Add `ELEVENLABS_API_KEY`, `STEPFUN_API_KEY`, `RESEND_API_KEY`, and `DEMO_INBOX`
-   as service variables. Set `NEW_HIRE_NAME=Sohail` and `ENABLE_DEBUG_RESET=0`.
+   as service variables. Add the same private `AGENT_API_TOKEN` to backend and agent
+   to enable ASI follow-up review. Set `NEW_HIRE_NAME=Sohail` and `ENABLE_DEBUG_RESET=0`.
    Preserve any intentional local STT/model overrides when copying configuration.
 4. Use one replica and one Uvicorn worker, disable sleeping, and set the
    health-check path to `/health`. Active sessions and background tasks live
@@ -37,7 +38,8 @@ database or bake a database into the image. Keep the local snapshot private.
    `RAILWAY_DOCKERFILE_PATH=agent/Dockerfile` and `PORT=8001`.
 2. Set `AGENT_SEED` to the existing private seed from the ignored `agent/.env`.
    Set `BACKEND_URL` to the deployed backend's HTTPS origin and add
-   `STEPFUN_API_KEY` for personalized prep. The agent does not need the profile
+   `STEPFUN_API_KEY` for personalized prep. Add the backend's private `AGENT_API_TOKEN`
+   to enable draft review and explicit approval. The agent does not need the profile
    management API token to run.
 3. Use one replica, disable sleeping, and set the health-check path to
    `/agent_info`. A public agent domain is unnecessary in mailbox mode.
@@ -74,3 +76,16 @@ database or bake a database into the image. Keep the local snapshot private.
    `npm test`, then `npm run pack`. The origin is baked into
    `glasses/footnote.ehpk`; changing it requires rebuilding and uploading again.
    Follow Even Hub's Beta upload/install flow and test on the actual G2.
+
+## Deploying the additive ASI follow-up extension
+
+Deploy backend first, then verify health, CORS and the existing typed client flow.
+The new `GET /agent/drafts/pending` is disabled without `AGENT_API_TOKEN`, rejects
+missing/wrong bearer tokens, and never mutates history. Deploy the agent next with
+the same seed and shared token. There is no database schema change or G2 rebuild.
+Keep the previous successful backend/agent deployment IDs privately for rollback.
+
+Verify the full flow in a real ASI:One conversation: preview -> Cancel -> preview
+again -> explicit approval of one draft -> one inbox delivery. A second chat must
+not accept the first chat's approval code. Keep previews, consent and outcome in
+the public shared-chat demo, excluding the actual inbox address and all secrets.

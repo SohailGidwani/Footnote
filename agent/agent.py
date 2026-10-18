@@ -16,6 +16,7 @@ from uagents_core.contrib.protocols.chat import (
 )
 
 from footnote import answer_text, load_pack
+from followups import Followups
 
 
 HERE = Path(__file__).resolve().parent
@@ -36,13 +37,16 @@ def load_local_env() -> None:
 load_local_env()
 backend_url = os.getenv("BACKEND_URL", "http://localhost:8000").strip()
 pack = load_pack()
+followups = Followups(backend_url, os.getenv("AGENT_API_TOKEN", ""))
 
 
 async def handle_chat(ctx: Context, sender: str, message: ChatMessage) -> None:
     await ctx.send(sender, ChatAcknowledgement(acknowledged_msg_id=message.msg_id))
     question = " ".join(item.text for item in message.content if isinstance(item, TextContent))
     try:
-        reply = await asyncio.to_thread(answer_text, question, pack, backend_url)
+        reply = await asyncio.to_thread(followups.reply, question, sender, str(getattr(ctx, "session", "")))
+        if reply is None:
+            reply = await asyncio.to_thread(answer_text, question, pack, backend_url)
     except Exception:
         ctx.logger.exception("Could not answer chat message")
         reply = "I could not answer that right now. Please try again."
@@ -62,7 +66,7 @@ def build_agent() -> Agent:
         handle="footnote-jargon-decoder",
         description=(
             "Explains Halcyon company jargon, recalls terms learned in Footnote meetings, "
-            "prepares you for meetings, and suggests teammates to contact."
+            "prepares you for meetings, suggests teammates, and sends reviewed follow-ups only after explicit approval."
         ),
         seed=seed,
         port=8001,

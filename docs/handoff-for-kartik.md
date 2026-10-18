@@ -1,5 +1,16 @@
 # Footnote handoff for Kartik
 
+## Approved additive API: ASI follow-up draft review (2026-10-18)
+
+`GET /agent/drafts/pending` requires `Authorization: Bearer AGENT_API_TOKEN`.
+Absent server token disables it (404); incorrect/missing authorization returns 401.
+It returns `{session_id: string|null, drafts: Draft[]}` for only the most recently
+ended meeting, excluding sent/discarded drafts. No request records sightings or
+modifies drafts. The agent previews each draft and accepts an explicit, short-lived
+`Approve <code>` bound to that sender/conversation before calling the existing
+`POST /drafts/{draft_id}/send`. Cancel only clears that conversation's approvals.
+Existing G2 endpoints, response shapes, email destination and Beta are unchanged.
+
 ## Design branch contract addition (kartik/design)
 
 `POST /drafts/{draft_id}/discard` returns `{discarded: true}`. It is valid only
@@ -762,3 +773,47 @@ unrun check as passed.
   `glasses/`; the current QR loads it from the laptop. The live Beta `.ehpk` will
   bundle that UI and its backend origin. Packaging, upload and installation are
   still pending; no hosted phone UI service was created.
+
+### 2026-10-18 — Live Beta built and Sohail confirms device flow
+
+- Pushed deployment setup and the agent mention fix as `de78f0b`, then ignored
+  root `.claude/` and `skills-lock.json` in `2c23bf4`. No secret or deployment URL
+  was committed. The ignored glasses env now uses the hosted backend with mock
+  mode off; the local web env was left unchanged.
+- `npm run pack` passed and produced `glasses/footnote.ehpk` (46,886 bytes),
+  version `0.1.0`, SDK `0.0.16`, minimum phone app `2.2.10`. Build checks confirmed
+  live mode, the sole backend-origin network whitelist, microphone permission,
+  and no provider keys, seed, inbox, localhost or tunnel URL in the build output.
+  Artifact SHA-256:
+  `bcfd7844ebfac9709ac245e5889cb46c881fc416a21e8b8bdc4d0150d33d336d`.
+- Guided the Even Hub Beta group/build assignment and phone installation. After
+  receiving typed-then-spoken test phrases and the queue-to-email sequence,
+  Sohail reported: `Done everything works as expected`. Record the installed
+  Beta's requested card, queue, mute, end, draft approval and email flow as
+  user-confirmed, not an independently observed run or provider delivery audit.
+- Requested glossary pairs: SLO/runbook, Kestrel/freeze window, SLAM/shadow mode,
+  rev B/e-stop, Beacon/BRT, RFC/DRI. The fresh inference phrase was
+  `The Cedar Point migration moves our telemetry onto the new cluster.`
+  His overall confirmation covers this requested test; no exact StepFun reply
+  or measured cloud/G2 latency was supplied, so do not invent either.
+- Still untested on this Beta: five-minute phone lock, microphone denial,
+  system-exit confirmation/cancellation, and launching a native app after exit.
+  A fresh ASI:One retest after the readable-handle fix remains separately pending.
+  Demo video and Devpost/sponsor submission remain to be completed.
+
+### 2026-10-18 — ASI follow-up extension local verification
+
+- Added only a protected read endpoint and agent-side review/approval orchestration.
+  The contract addition is recorded at this file's top and in CLAUDE.md. Existing
+  send/discard behavior, fixed demo inbox, database schema and G2 Beta are unchanged.
+- Local backend: 85 tests pass; agent: 43 tests plus 23 subtests pass. New tests
+  failed before implementation. Existing backend deprecation warning remains.
+- Actual HTTP integration used a temporary SQLite backend and simulated mailer:
+  old typed cards -> queue -> mute -> end -> ACP acknowledgement/preview -> reject
+  another conversation's code -> simulated provider failure -> explicit retry ->
+  exactly one simulated send -> digest. No real email or provider key was used.
+- Fresh independent code review found no important/critical defects. Real ASI:One
+  must still verify session binding and actual delivery after deployment. This
+  is a shared single-user synthetic demo, not multi-tenant authorization.
+- Updated server env examples, runtime Docker COPY, operator instructions and
+  agent listing. Both Devpost and the Fetch Submission Agent are required.

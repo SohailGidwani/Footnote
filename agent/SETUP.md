@@ -89,3 +89,30 @@ Open the full `https://agentverse.ai/inspect/...` link, not the server root
 `http://127.0.0.1:8001/agent_info` is the local identity/status endpoint.
 
 If `README.md` changes after the initial mailbox connection, check the public profile. The initial README may remain published until you save an update through the Agentverse Overview editor.
+
+## Review and approve follow-ups in ASI:One
+
+Set the same private `AGENT_API_TOKEN` in the backend and agent service envs.
+It is server-only; never put it in a client, chat or profile. Without it the
+new backend tool is disabled and existing lookups/prep continue normally.
+
+Queue a question in Footnote, end the meeting, and leave its draft unsent. In
+ASI:One ask `Show the questions I saved in my last meeting` (or `Send my questions`).
+The agent reads only the latest ended meeting and shows each pending draft's
+recipient, subject and complete body. Sent/discarded drafts are excluded; an
+empty latest meeting never silently selects an older meeting.
+
+Reply `Approve <code>` using the exact code for one reviewed draft. `Yes` or
+`send it` never sends. Codes belong to that sender and conversation, expire in
+10 minutes, and are invalidated by a new preview or agent restart. Reply `Cancel`
+to clear approvals; this does not discard the phone's drafts. Cancel before
+approving if you want to leave them unsent. It cannot undo a completed send.
+
+The backend performs delivery through its existing send endpoint and Resend
+idempotency key. Uncertain failures retain the same code for an explicit retry;
+there is no automatic retry. A successful API result confirms backend acceptance,
+not independently observed inbox arrival. Check the configured inbox for delivery.
+
+This is one shared synthetic demo meeting history, not a multi-user authorization
+system. Coworker names are display recipients; every actual email goes only to
+configured `DEMO_INBOX`. No inbox address, provider key or seed is shown in chat.

@@ -81,9 +81,13 @@ def _people_answer(digest: dict) -> str:
     return "People to meet: " + "; ".join(lines) + "." + suffix
 
 
+def normalize_question(query: str) -> str:
+    return re.sub(r"^@[\w.-]+\s+", "", query.strip())
+
+
 def answer_text(query: str, pack: dict, backend_url: str) -> str:
     """Answer without creating sightings or changing meeting state."""
-    question = re.sub(r"^@[\w.-]+\s+", "", query.strip())
+    question = normalize_question(query)
     if not question:
         return HELP
     lower = question.casefold()

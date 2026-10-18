@@ -69,12 +69,34 @@ preflights as specified in `CLAUDE.md`. There is no automatic mock fallback
 on network errors. Drafts send only after individual approval; a timed-out
 send has an unknown outcome, so check the inbox/backend before retrying.
 
+## Agent follow-ups in ASI:One
+
+[Footnote Jargon Decoder](https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r)
+can review saved meeting questions. Queue a question on G2, end the meeting, then
+ask `Show the questions I saved in my last meeting` in ASI:One. Review the displayed
+recipient, subject and body; reply `Approve <code>` for exactly one draft or
+`Cancel` to leave it unsent. Delivery uses the configured demo inbox. Codes expire
+in 10 minutes and work only in the previewing conversation.
+
+Operator setup and tests: [agent setup](agent/SETUP.md). The server-only
+`AGENT_API_TOKEN` must match on backend and agent; no extra client key or G2 build
+is needed. The backend's existing endpoints and phone approval flow are unchanged.
+
+Fetch requires both Devpost and its designated ASI:One Submission Agent; see the
+[official hackpack](https://www.fetch.ai/events/hackathons/la-hacks-ai-hackathon-2026/hackpack).
+Capture a new shared chat demonstrating preview, approval and the actual outcome.
+
 ## Run on G2
 
 For the hosted backend, agent and digest, see [Railway setup](docs/railway-deployment.md).
 With a hosted backend, use its HTTPS origin in the glasses env and skip the
 local backend/tunnel steps below. Restart Vite for QR testing; rebuild the
 live package whenever the backend origin changes.
+
+On 2026-10-18, Sohail confirmed the installed live Beta on physical G2 against
+Railway: typed and spoken test phrases, cards, queue, mute, end, draft approval
+and the email flow worked as expected, including fresh StepFun inference.
+This is user-reported device verification; latency was not measured.
 
 1. Start the backend on macOS. Put the four required variables listed above
    in `backend/.env`, and add `ENABLE_DEBUG_RESET=1` for rehearsals:
@@ -220,6 +242,10 @@ Retest the complete loop after installation. Upload the demo package only
 when deliberately testing an offline Beta. Portal upload and installation
 require your account and are not performed by the local build command.
 
+The live `0.1.0` package was built and Sohail confirmed the Beta test flow on
+2026-10-18. A five-minute phone lock, microphone denial, system-exit confirmation
+and cancellation, and launching a native app after exit still need Beta checks.
+
 `glasses/app.json` is the base manifest. The build emits `glasses/dist/app.json`
 with a network permission containing **only BACKEND_URL's origin** in live
 mode; offline demo builds require no network permission. The pack script
@@ -249,13 +275,14 @@ after deployment. No hosting account or domain changes are made here.
 `npm test` uses Node's built-in test runner for PCM integrity, API validation,
 timeouts, config/manifest generation, gestures, fade-out, timers and meeting
 failure handling. `npm run build` type-checks and builds both apps. The mock
-flow proves client behavior. Local integration passed 41 backend tests,
+flow proves client behavior. Latest checks passed 79 backend tests, 24 client
+tests, and 21 agent tests plus 23 subtests. Local integration passed
 health/CORS checks, the browser text-to-draft/digest loop, and actual backend
 cards and gestures in the simulator. Sohail confirmed the full G2 testing
 flow was working; that device result is user-confirmed.
 
 The implementation follows the [official ASR starter](https://github.com/even-realities/evenhub-templates/tree/main/asr)
 and [Even development instructions](https://github.com/even-realities/everything-evenhub).
-Paper Desktop design work, Beta installation, demo video, and Devpost
-submission still require the event devices/accounts. No Paper
-usage or sponsor submission is claimed by this code setup.
+The live Beta flow is user-confirmed; the remaining Beta lifecycle and permission
+checks above, demo video, and Devpost submission are still outstanding. No sponsor
+submission is claimed by this code setup.

@@ -343,6 +343,17 @@ class Store:
         self.conn.execute("UPDATE drafts SET discarded=1 WHERE id=? AND status='draft'", (draft_id,))
         self.conn.commit()
 
+    def pending_agent_drafts(self) -> dict:
+        session = self.conn.execute(
+            "SELECT id FROM sessions WHERE ended_at IS NOT NULL "
+            "ORDER BY ended_at DESC, rowid DESC LIMIT 1").fetchone()
+        if not session:
+            return {"session_id": None, "drafts": []}
+        rows = self.conn.execute(
+            "SELECT * FROM drafts WHERE session_id=? AND status='draft' AND discarded=0 ORDER BY rowid",
+            (session["id"],)).fetchall()
+        return {"session_id": session["id"], "drafts": [self.draft_dict(row) for row in rows]}
+
     # --- digest ---------------------------------------------------------------
     def _person_entry(self, person_id: str) -> dict:
         p = self.person(person_id)

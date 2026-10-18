@@ -4,11 +4,12 @@ import json
 import logging
 import math
 import re
+import secrets
 import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 
 from . import config, llm, mailer, stt
@@ -411,6 +412,17 @@ def create_api(db_path: str | None = None, pack_path=None) -> FastAPI:
             if not row["discarded"]:
                 st.store.mark_discarded(draft_id)
         return {"discarded": True}
+
+    @api.get("/agent/drafts/pending")
+    async def agent_pending_drafts(request: Request, response: Response):
+        token = config.env("AGENT_API_TOKEN")
+        if not token:
+            raise HTTPException(404, "Not found")
+        supplied = request.headers.get("authorization", "")
+        if not secrets.compare_digest(supplied.encode(), f"Bearer {token}".encode()):
+            raise HTTPException(401, "Agent authorization required")
+        response.headers["Cache-Control"] = "no-store"
+        return get_state(request).store.pending_agent_drafts()
 
     @api.get("/digest")
     async def digest(request: Request):

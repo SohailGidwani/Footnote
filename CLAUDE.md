@@ -14,6 +14,14 @@ Demo company: "Halcyon Robotics" (synthetic data in /data/company_pack.json).
 /data     company_pack.json. Owner: Kartik.
 Never edit another owner's folder. If you need a contract change, stop and say so.
 
+## Additive agent API (approved 2026-10-18)
+GET /agent/drafts/pending requires Bearer AGENT_API_TOKEN (server-only shared secret).
+Returns {session_id: string|null, drafts: Draft[]} for the latest ended meeting only,
+excluding sent/discarded drafts. Disabled (404) without configuration; unauthorized
+requests return 401. Read-only. Existing endpoints below are unchanged.
+Agent sends only after explicit per-draft, conversation-bound approval, using the
+existing send endpoint and fixed DEMO_INBOX. This remains a single-user demo backend.
+
 ## API contract (frozen; backend base URL in env BACKEND_URL, HTTPS)
 POST /session/start                      -> {session_id}
 POST /listen?session_id=ID               body: raw PCM bytes (16 kHz, s16le, mono, ~4 s)
