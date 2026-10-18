@@ -149,8 +149,8 @@ Record the Agentverse profile URL and a public ASI:One shared chat URL in the
 changelog: both are required for Fetch submission and are fine to share.
 The agent answers only while running; record where it runs in the changelog.
 The implementation, local tests, mailbox connection and Bluebird ASI:One reply
-are complete. The shared chat URL is verified; Agentverse profile details and
-its profile URL remain to verify.
+are complete. Both public submission URLs are verified; Agentverse profile
+name, handle and published README need account-side review.
 
 ## Rules while Sohail sleeps
 
@@ -270,10 +270,13 @@ unrun check as passed.
   https://asi1.ai/shared-chat/5242abb1-e546-46d2-ad8c-8a2b2600a1a8
 - Public ASI:One agent page:
   https://asi1.ai/ai/agent1qg8amcyx59uvzkpj3zyy260cd790ewlf0nuga3qydevs25489lv3vgvx4gq
+- Public Agentverse profile opened in a signed-out browser. It showed Active,
+  Mailbox, AgentChatProtocol v0.3.0, the README badges and the Bluebird listing:
+  https://agentverse.ai/agents/details/agent1qg8amcyx59uvzkpj3zyy260cd790ewlf0nuga3qydevs25489lv3vgvx4gq/profile
 - The listing showed the correct README description and required badges, but
   its display name was still `footnote_new_hire` and its categories appeared
-  unrelated. Agentverse profile details and the Agentverse profile URL still
-  need account-side review before submission.
+  unrelated. Agentverse profile details need account-side review before
+  submission.
 - Moved local setup instructions from the public `agent/README.md` listing to
   `agent/SETUP.md` so the listing focuses on user-facing capabilities. Restarted
   the agent with the same address; the public ASI:One listing still showed the
