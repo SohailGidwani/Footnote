@@ -24,7 +24,7 @@ The status below is the initial handoff snapshot; current changes are in the cha
 
 Current local Fetch agent: **Footnote Jargon Decoder**, `@footnote-jargon-decoder`.
 [ASI:One page](https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r).
-Public demo chat: https://asi1.ai/shared-chat/c130fcb3-8bf2-4d92-b88f-e8d17cf1c777
+Public demo chat: https://asi1.ai/shared-chat/886cf7a4-bd67-49f6-a14c-34ecbf9bcf07
 Older agent links below are historical; see the identity replacement entry at the bottom.
 
 ## Status and evidence
@@ -628,3 +628,68 @@ unrun check as passed.
 - Treat this as Sohail's device-test confirmation, not an independently observed
   run or measured latency result. Sohail also confirmed full shared-chat message
   visibility in incognito, as recorded above. No further code change was made here.
+
+### 2026-10-18 — Personalized agent meeting prep
+
+- Replaced the fixed prep response with agenda-based prep in `/agent`. It reads
+  the company pack and read-only `GET /digest`, shortlists relevant candidates,
+  and uses StepFun `step-5-preview` to select up to five saved term IDs and propose
+  three questions. Meanings and contacts are rendered from the original records;
+  glossary facts take precedence, and learned inferences stay labeled inferred
+  with suggested contacts. Questions are suggestions only; nothing is sent.
+- Added optional `STEPFUN_API_KEY` to the agent env example and configured it in
+  the ignored local agent env. The seed and all other env settings are unchanged.
+  No new dependency or backend API change. Backend, data and client code untouched.
+- Verified all 20 agent tests plus 19 subtests, covering distinct agendas,
+  learned terms, malformed history/model replies, model timeouts, glossary
+  precedence, fallback, and mention-prefixed ACP handling with acknowledgement.
+- Live checks called the actual chat handler locally with a test reply context,
+  the running backend and real StepFun. This tests reply generation and ACK order,
+  not delivery through ASI:One. Both final checks passed:
+  - Telemetry review about Ridgeline and FCS: selected those two terms;
+    `llm_ms=18348`, total 18357 ms. Ridgeline kept its inferred meaning/contact.
+  - Incident review about SLO and runbook: selected SLO, runbook and postmortem;
+    `llm_ms=33155`, total 33162 ms. Each brief included three proposed questions.
+- Compared all rows in all seven backend tables before/after the final live
+  checks: unchanged. No sightings, queues, drafts or emails were created.
+- Earlier full-pack trials triggered model-response validation fallback and timeouts.
+  The final version shortlists up to 12 keyword-relevant candidates, allows a
+  4096-token response budget, and has a 45-second agent-only model timeout.
+  Missing key, timeout or invalid plan returns a labeled keyword brief with
+  three template questions; missing history falls back to the glossary.
+  This does not change the phone's six-second listen timeout. Latency varies.
+- Local runtime uses the same registered identity on port 8001. Sohail's
+  ASI:One web retest passed, as recorded below. The public shared chat showing
+  the new flow and its verification are recorded below. The updated local README is ready for the
+  Agentverse Overview; public profile text refresh has not been verified.
+  Deployment and Beta remain untested.
+
+### 2026-10-18 — Sohail verifies personalized prep in ASI:One
+
+- Sohail pasted both complete web replies from `@footnote-jargon-decoder`,
+  timestamped 12:32 AM and 12:33 AM. Both were labeled **StepFun selection;
+  definitions from saved records** and contained three agenda-specific questions.
+- Telemetry prep returned Ridgeline and FCS. Ridgeline retained its inferred
+  meeting definition and Marcus Lindqvist (Platform) as a suggested contact;
+  FCS retained its glossary definition, owner and recent-meeting label.
+- Incident prep returned SLO, runbook and postmortem with their saved meanings
+  and Dana Okafor (Reliability) as owner/contact. Its questions differed from
+  the telemetry brief and addressed incident review and postmortem preparation.
+- Personalized prep delivery through ASI:One web passes based on Sohail's
+  supplied conversation. These timestamps are not a measured latency result.
+  The new shared-chat link and subsequent visibility check are recorded below;
+  the earlier incognito check covered the previous conversation contents.
+
+### 2026-10-18 — Public personalized-prep demo chat
+
+- Sohail supplied the new demo link:
+  https://asi1.ai/shared-chat/886cf7a4-bd67-49f6-a14c-34ecbf9bcf07
+- An anonymous HTTPS request without cookies or an authorization header returned
+  200 at the same URL, with title `Telemetry And Incident Review Prep`. Message
+  text is loaded through JavaScript and was absent from the initial HTML;
+  the automated check verifies page reachability only.
+- After being asked to check the updated conversation in incognito, Sohail
+  confirmed: `I checked and it works`. Message visibility passes based on his
+  browser check, alongside the complete live replies he supplied above.
+- Use this link as the current Fetch demo chat. The previous shared link remains
+  in the historical entries; the current agent identity/profile is unchanged.

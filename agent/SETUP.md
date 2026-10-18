@@ -41,6 +41,35 @@ inferences are labeled as inferred, with a suggested contact rather than a
 confirmed owner. Unknown terms stay unknown; a lookup does not call `/listen_text`
 or create a sighting. Learn the full name and its context in a meeting first.
 
+## Personalized meeting prep
+
+Add `STEPFUN_API_KEY` to the ignored `agent/.env` to enable StepFun
+`step-5-preview` for prep requests, then restart the agent. Keep the seed unchanged.
+The agent calls StepFun directly for prep only; it uses the same provider as the
+backend but does not import the backend or change its API. No extra dependency
+is required. Never put the key in the public profile or a client env file.
+
+Try `Prepare me for a telemetry review about Ridgeline and FCS`, then
+`Prep me for an incident review about SLO and runbook`. The agent reads the pack
+and `GET /digest` from `BACKEND_URL`, asks StepFun to choose up to five saved term
+IDs and three questions, validates the response, and renders meanings and contacts
+from the original records. Inferred meeting definitions stay labeled inferred;
+their contacts remain suggestions. Glossary definitions take precedence.
+Agenda keywords shortlist up to 12 candidates before model selection; a request
+without keyword matches gives the model the full pack for semantic matching.
+
+If history is unavailable, prep uses the glossary and says so. If the key is
+missing, the model times out (45 seconds), or its plan is invalid, it returns a
+brief labeled **Keyword fallback** with three template questions. The platform
+sync retains its original five-term fallback. No matching terms means the agent
+asks for more context. There is no calendar access or automatic sending.
+
+Console lines `prep model=step-5-preview llm_ms=... terms=...` confirm live model
+selection; `prep fallback=keyword` identifies fallback. These timings cover the
+model call and validation, not ASI:One transport or total response time.
+Live local checks took about 18 and 33 seconds for two different agendas. This
+is separate from the glasses listen path and its unchanged six-second timeout.
+
 ## Connect to Agentverse
 
 The current local agent is **Footnote Jargon Decoder**, handle

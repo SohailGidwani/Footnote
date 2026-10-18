@@ -50,6 +50,22 @@ class ChatProtocolTests(unittest.TestCase):
                 self.assertIsInstance(ctx.sent[0][1], ChatAcknowledgement)
                 self.assertIn("do not have Ridgeline", ctx.sent[1][1].content[0].text)
 
+    @patch.dict(os.environ, {"STEPFUN_API_KEY": ""})
+    @patch("footnote.fetch_digest", return_value={"terms_learned": [], "people_to_meet": [], "sent": []})
+    def test_asi_prep_message_returns_a_brief_after_acknowledgement(self, _get_digest):
+        ctx = FakeContext()
+        incoming = ChatMessage(content=[TextContent(
+            type="text", text="@agent1testrecipient Prep me for an incident review about SLO and runbook"
+        )])
+        asyncio.run(handle_chat(ctx, "agent1sender", incoming))
+        self.assertEqual(len(ctx.sent), 2)
+        self.assertIsInstance(ctx.sent[0][1], ChatAcknowledgement)
+        self.assertEqual(ctx.sent[0][1].acknowledged_msg_id, incoming.msg_id)
+        reply = ctx.sent[1][1].content[0].text
+        self.assertIn("SLO: Reliability target", reply)
+        self.assertIn("runbook: Step-by-step incident response guide", reply)
+        self.assertIn("Suggested questions", reply)
+
 
 if __name__ == "__main__":
     unittest.main()
