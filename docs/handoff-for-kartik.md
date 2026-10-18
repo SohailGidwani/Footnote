@@ -137,7 +137,7 @@ encouraged for the prize; fall back to keyword matching if it fails.
 
 Registration: run the agent, open its printed Agent Inspector link, choose
 Connect -> Mailbox, open Agent Profile, and set a clear name
-("Footnote: new-hire jargon decoder") and handle. Write `/agent/README.md` for
+("Footnote Jargon Decoder") and handle. Write `/agent/README.md` for
 the Agentverse listing with both badges:
 
 ![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
