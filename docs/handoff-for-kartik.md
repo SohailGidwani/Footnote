@@ -873,3 +873,22 @@ unrun check as passed.
   chat as supporting evidence. Devpost and the Fetch Submission Agent submissions
   are still pending. Live cancellation/expiry/duplicate-approval and remaining G2
   reliability checks are not newly verified by sharing the chat.
+
+### 2026-10-18 — Phone-lock smoke test and offline judge guide
+
+- After the local UI servers, backend and cloudflared were stopped, Sohail
+  reported that the installed Beta still worked properly after locking the
+  phone. Record a user-confirmed phone-lock smoke test. He did not provide the
+  lock duration or exact actions; do not turn this into a measured five-minute
+  continuous-microphone or universal-background claim. Microphone denial and
+  native exit confirmation/cancellation remain separately unverified.
+- Created a local, gitignored `docs/judges-guide.html` (not included in the repo):
+  a standalone offline presenter guide with
+  3-/5-minute walkthroughs, timer, 77 searchable test phrases, 29 judge questions,
+  readiness checks and recovery notes. Links open the existing hosted tools only
+  when clicked; the guide does not call backend APIs or send emails.
+- The guide emphasizes shared familiarity state, one showing per meeting,
+  fresh versus cached inference, and leaving the phone draft unsent before ASI
+  approval. It distinguishes live tests, earlier public chat evidence and video.
+- No application code, deployment, database, environment or G2 Beta was changed
+  while preparing the guide. Local servers are intended to remain stopped.

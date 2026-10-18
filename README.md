@@ -128,6 +128,8 @@ On 2026-10-18, Sohail confirmed the installed live Beta on physical G2 against
 Railway: typed and spoken test phrases, cards, queue, mute, end, draft approval
 and the email flow worked as expected, including fresh StepFun inference.
 This is user-reported device verification; latency was not measured.
+Sohail subsequently reported that the installed Beta continued working after
+locking the phone. The test duration and exact actions were not recorded.
 
 1. Start the backend on macOS. Put the four required variables listed above
    in `backend/.env`, and add `ENABLE_DEBUG_RESET=1` for rehearsals:

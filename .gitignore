@@ -11,3 +11,4 @@ test-results/
 .playwright-mcp/
 /.claude/
 /skills-lock.json
+/docs/judges-guide.html
