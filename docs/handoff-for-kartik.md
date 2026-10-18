@@ -341,3 +341,33 @@ unrun check as passed.
 - Result: live typed-text backend inference passed. No email was sent. The real app
   DB still contains zero Ridgeline terms, so Sohail's next device test remains fresh.
   Physical G2 output and real-audio Ridgeline inference remain untested after this fix.
+
+### 2026-10-17 — Cached-fragment fix and model comparison
+
+- Later G2 feedback was a standalone LINE card, not verified full RIDGELINE output.
+  The app DB contained an older generic LINE inference. Now exclude generic
+  non-code LLM entries from matching and pending-card delivery, using the same
+  check as new inference. Keep their existing queue, drafts and history intact.
+  Full names and contextual meanings remain eligible; letter-number codes retain
+  their cautious fallback. No term-specific substitution was added.
+- Verification: 76 backend tests pass, including six old-cache/history cases;
+  one existing Starlette/httpx deprecation warning remains. Backend restarted
+  on port 8000. No database reset or email send; a read-only before/after hash
+  confirmed queued work and drafts were unchanged during the live API diagnostic.
+- Actual port-8000 diagnostic: a fresh Cedar Point phrase produced one candidate,
+  but StepFun hit the 25 s cap with zero added cards. Health and OPTIONS passed.
+  DNS cache reload did not permanently solve the earlier intermittent TLS errors.
+  No TLS bypass or saved DNS change was made.
+- With Sohail's permission, compared models in isolated synthetic calls, keeping
+  the full company pack, low reasoning and JSON schema. Existing prompt:
+  Step 5 Preview timed out after 35 s; 3.7 Flash returned a Ridgeline meaning in
+  12.95 s; 3.5 Flash 2603 returned one in 30.55 s. These are individual samples.
+- Shorter prompt: Step 5 returned a meaning in 30.68 s. A 3.78 s 3.7 Flash result
+  rejected Ridgeline, so it is not a successful fast-card result. Restoring the
+  absent-from-pack project rule gave full-name meanings for Ridgeline in 8.49 s
+  and Cedar Point in 15.01 s, with suggested contacts at confidence 0.6.
+- Successful TLS setup took under a second in these comparisons; waiting for
+  response headers dominated. Completed benchmark calls cost approximately $0.02
+  from reported token usage and official rates; timed-out usage was unavailable.
+  App model and prompt remain unchanged. No model switch or new G2 latency is
+  verified; the plan still requires runtime Step-5 Preview use for the prize.

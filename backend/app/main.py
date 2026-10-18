@@ -31,6 +31,11 @@ MIN_CONFIDENCE = 0.6
 CODE_TERM = re.compile(r"[A-Z]{2,5}-[0-9]+")
 
 
+def is_unexplained_word(term: str, meaning: str) -> bool:
+    return not CODE_TERM.fullmatch(term.upper()) and \
+        clip(meaning, 44).lower() == "internal code; details unconfirmed"
+
+
 @dataclass
 class Session:
     id: str
@@ -56,7 +61,9 @@ class State:
 
     def matcher(self) -> Matcher:
         if self._matcher is None or self._matcher_version != self.store.terms_version:
-            self._matcher = Matcher(self.store.all_terms())
+            # Ignore old speculative cache entries without deleting queued history.
+            self._matcher = Matcher([t for t in self.store.all_terms()
+                                     if t["source"] != "llm" or not is_unexplained_word(t["term"], t["meaning"])])
             self._matcher_version = self.store.terms_version
         return self._matcher
 
@@ -93,6 +100,9 @@ def collect_cards(st: State, s: Session, new_ids: list[str]) -> list[dict]:
     chosen, waiting = [], []
     for tid in ordered:
         if tid in s.shown or st.store.is_hidden(tid):
+            continue
+        term = st.store.term(tid)
+        if term["source"] == "llm" and is_unexplained_word(term["term"], term["meaning"]):
             continue
         (chosen if len(chosen) < MAX_CARDS_PER_LISTEN else waiting).append(tid)
     s.pending = waiting
@@ -141,7 +151,7 @@ async def slow_path(st: State, s: Session, transcript: str) -> None:
             owner = hinted_owner if contextual_code else None
         if not (isinstance(raw_meaning, str) and clip(raw_meaning, 44)):
             raw_meaning = "Internal code; details unconfirmed" if CODE_TERM.fullmatch(word) else ""
-        if not CODE_TERM.fullmatch(word) and clip(raw_meaning, 44).lower() == "internal code; details unconfirmed":
+        if is_unexplained_word(word, raw_meaning):
             continue
         confidence = raw_confidence if isinstance(raw_confidence, (int, float)) \
             and not isinstance(raw_confidence, bool) and math.isfinite(raw_confidence) else None

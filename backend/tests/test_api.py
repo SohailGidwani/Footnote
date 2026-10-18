@@ -306,6 +306,28 @@ def test_plain_word_fragments_do_not_get_generic_code_cards(client, session, mon
     assert say(client, session, "")["cards"] == []
 
 
+@pytest.mark.parametrize("term", ["Line", "Telemetry", "Cedar Point"])
+@pytest.mark.parametrize("pending", [False, True])
+def test_old_generic_word_cache_is_ignored_without_deleting_history(client, session, term, pending):
+    store = client.app.state.footnote.store
+    tid = store.add_llm_term(term, "Internal code; details unconfirmed", "p_marcus", 0.6)
+    card = store.make_card(session, tid)  # a card issued by an older server
+    store.bump_seen(tid)
+    assert client.post(f"/cards/{card['card_id']}/queue", json={"session_id": session}).status_code == 200
+    drafts = store.drafts_for_session(session)
+    queued = [dict(item) for item in store.queued_by_owner(session)["p_marcus"]]
+
+    fresh = client.post("/session/start", json={}).json()["session_id"]
+    if pending:
+        client.app.state.footnote.session(fresh).pending.append(tid)
+    assert say(client, fresh, f"The {term} migration is ready.")["cards"] == []
+    assert "".join(llm.tokens(term)) not in client.app.state.footnote.matcher().known_words
+    assert store.term(tid) is not None
+    assert store.seen_state(tid) == (1, False)
+    assert store.drafts_for_session(session) == drafts
+    assert [dict(item) for item in store.queued_by_owner(session)["p_marcus"]] == queued
+
+
 def test_hal9_salvages_malformed_fields_with_valid_model_owner(client, session, monkeypatch):
     monkeypatch.setenv("STEPFUN_API_KEY", "fake")
 
