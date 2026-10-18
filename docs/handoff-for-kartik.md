@@ -431,8 +431,9 @@ unrun check as passed.
   reads like a ruled meeting ledger, with a focused G2 memory strip. Both use
   cool paper, spruce ink, square controls and restrained copy.
 - G2 keeps the existing three containers and single event capture at 576 × 288.
-  Brightness values are now status 6, term 15, detail 11 on the supported 0–15
-  scale. The browser's G2 preview is conceptual; the firmware font cannot be
+  Brightness values were initially status 6, term 15, detail 11; the installed
+  SDK rejects those values (see the correction below). The browser's G2 preview
+  is conceptual; the firmware font cannot be
   replaced with the preview's font. Physical device fit/brightness still needs
   an on-device check.
 - Before/after evidence is in `design/evidence/`: the baseline
@@ -448,3 +449,17 @@ unrun check as passed.
   Starlette/httpx deprecation warning.
 - This is local work only. Client `BACKEND_URL` remains
   `http://localhost:8000`; no deployment was performed.
+
+### 2026-10-17 — G2 startup brightness correction
+
+- Sohail reported startup failure while the glasses were paired. Reproduced the
+  rejection with the installed SDK validator: `INVALID_TEXT_BRIGHTNESS`, status
+  `textColor=6`; valid brightness is integer 0–4, not 0–15. Corrected the three
+  containers to status 2, term 4, detail 3, preserving the new layout and text.
+- Added an SDK-validation regression test for the actual startup-page payload;
+  it failed before the correction. Updated the existing layout expectation.
+- Verification: all 22 client tests and both production client builds pass.
+- Restarted backend and both Vite servers. The user-supplied new tunnel passed
+  health (200) and listen preflight (204 with CORS). Vite serves the new ignored
+  glasses env; web remains on localhost. No meeting data was reset or email sent.
+- Physical G2 reopening and visual confirmation remain pending Sohail's test.

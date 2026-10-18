@@ -1,5 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
+import { CreateStartUpPageContainer, TextContainerProperty, validateEvenHubPageContainer } from '@evenrealities/even_hub_sdk';
 import type { MeetingState } from '../src/meeting.ts';
 import { containers, screenFor } from '../src/screen.ts';
 
@@ -14,6 +15,18 @@ test('G2 layout stays within 576 by 288', () => {
     assert.ok(container.xPosition >= 0 && container.xPosition + container.width <= 576);
     assert.ok(container.yPosition >= 0 && container.yPosition + container.height <= 288);
   }
+});
+
+test('the installed Even SDK accepts the G2 startup page', () => {
+  const screen = screenFor(base);
+  const page = new CreateStartUpPageContainer({
+    containerTotalNum: containers.length,
+    textObject: containers.map((container, index) => new TextContainerProperty({
+      ...container, borderWidth: 0, paddingLength: 0, content: screen[index],
+    })),
+  });
+  const result = validateEvenHubPageContainer(page);
+  assert.equal(result.valid, true, JSON.stringify(result));
 });
 
 test('G2 renders listening, term, queued, empty, and error states', () => {

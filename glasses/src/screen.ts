@@ -1,9 +1,9 @@
 import type { MeetingState } from './meeting.ts';
 
 export const containers = [
-  { containerID: 1, containerName: 'status', xPosition: 16, yPosition: 12, width: 544, height: 40, textColor: 6, isEventCapture: 0 },
-  { containerID: 2, containerName: 'term', xPosition: 16, yPosition: 78, width: 544, height: 56, textColor: 15, isEventCapture: 1 },
-  { containerID: 3, containerName: 'detail', xPosition: 16, yPosition: 144, width: 544, height: 128, textColor: 11, isEventCapture: 0 },
+  { containerID: 1, containerName: 'status', xPosition: 16, yPosition: 12, width: 544, height: 40, textColor: 2, isEventCapture: 0 },
+  { containerID: 2, containerName: 'term', xPosition: 16, yPosition: 78, width: 544, height: 56, textColor: 4, isEventCapture: 1 },
+  { containerID: 3, containerName: 'detail', xPosition: 16, yPosition: 144, width: 544, height: 128, textColor: 3, isEventCapture: 0 },
 ];
 
 export function screenFor(state: MeetingState): string[] {
