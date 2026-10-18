@@ -83,7 +83,7 @@ def _people_answer(digest: dict) -> str:
 
 def answer_text(query: str, pack: dict, backend_url: str) -> str:
     """Answer without creating sightings or changing meeting state."""
-    question = re.sub(r"^@agent1[a-z0-9]+\s+", "", query.strip(), flags=re.IGNORECASE)
+    question = re.sub(r"^@[\w.-]+\s+", "", query.strip())
     if not question:
         return HELP
     lower = question.casefold()

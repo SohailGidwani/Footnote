@@ -71,6 +71,11 @@ send has an unknown outcome, so check the inbox/backend before retrying.
 
 ## Run on G2
 
+For the hosted backend, agent and digest, see [Railway setup](docs/railway-deployment.md).
+With a hosted backend, use its HTTPS origin in the glasses env and skip the
+local backend/tunnel steps below. Restart Vite for QR testing; rebuild the
+live package whenever the backend origin changes.
+
 1. Start the backend on macOS. Put the four required variables listed above
    in `backend/.env`, and add `ENABLE_DEBUG_RESET=1` for rehearsals:
 
@@ -99,7 +104,7 @@ send has an unknown outcome, so check the inbox/backend before retrying.
    project silently moves to 5174 and the QR can load the wrong app.
    `npm run simulate` opens the simulator against the local phone UI.
 
-3. For the **real G2 only**, start the tunnel yourself in another terminal:
+3. For the **real G2 using a local backend**, start the tunnel yourself in another terminal:
 
    ```sh
    brew install cloudflared # first time only

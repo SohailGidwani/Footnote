@@ -10,9 +10,12 @@ env
 **/*.pyc
 **/*.db
 **/*.db-journal
+**/*.db-wal
+**/*.db-shm
+**/private_keys.json
 node_modules
-glasses
-web
-agent
+**/node_modules
+**/dist
+**/*.ehpk
 docs
 *.pdf

@@ -7,7 +7,7 @@ after `/session/{id}/end` and before the draft is sent. A sent or discarded draf
 cannot be sent or discarded again as a new action (sent returns 409; discard is
 idempotent). Discarded drafts are omitted from repeated `/end` responses and are
 not marked as pending in `/digest`. The phone waits about five seconds before
-calling discard so its Undo action can restore the draft. No deployment is planned.
+calling discard so its Undo action can restore the draft.
 
 Afterimage Paper screens and G2 preview:
 https://app.paper.design/file/01M56HH1VJ2BSH57HAFMAF1RED/p-5-0
@@ -22,7 +22,8 @@ suggest a person to ask; they do not confirm ownership. Read `CLAUDE.md` and
 Record any proposed contract change at the top of this file before changing it.
 The status below is the initial handoff snapshot; current changes are in the changelog.
 
-Current local Fetch agent: **Footnote Jargon Decoder**, `@footnote-jargon-decoder`.
+Current Fetch agent: **Footnote Jargon Decoder**, `@footnote-jargon-decoder`,
+now running on Railway. Do not run its local copy at the same time.
 [ASI:One page](https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r).
 Public demo chat: https://asi1.ai/shared-chat/886cf7a4-bd67-49f6-a14c-34ecbf9bcf07
 Older agent links below are historical; see the identity replacement entry at the bottom.
@@ -693,3 +694,71 @@ unrun check as passed.
   browser check, alongside the complete live replies he supplied above.
 - Use this link as the current Fetch demo chat. The previous shared link remains
   in the historical entries; the current agent identity/profile is unchanged.
+
+### 2026-10-18 — Railway backend, agent and digest deployment
+
+- Deployed three services from the repo root: existing `backend/Dockerfile`,
+  new `agent/Dockerfile`, and new `web/Dockerfile`. Added
+  `docs/railway-deployment.md`, Docker context exclusions for private/runtime
+  files, and README/setup links. No backend, data, client UI or API contract change.
+- Backend uses one replica/worker, a persistent volume at `/var/data`,
+  `DB_PATH=/var/data/footnote.db`, and `ENABLE_DEBUG_RESET=0`. Secrets are Railway
+  variables; no real values or deployment URLs belong in Git.
+- Imported a consistent SQLite backup: 12 people, 42 terms, 5 sessions, 9 seen
+  rows, 12 cards, 11 queued questions and 9 drafts. Uploaded to a separate unopened
+  database, downloaded it again, and verified byte equality and SQLite integrity
+  before switching the running service to it. All nine learned digest terms,
+  including Ridgeline, matched the local snapshot.
+- HTTPS checks passed: `/health` 200, `OPTIONS /listen` 204 with CORS, public
+  `/debug/reset` 404. Typed API rehearsal using exact client request shapes passed:
+  start -> BOM + NRE cards -> queue BOM -> mute NRE -> end -> Hana draft -> digest.
+  Listen HTTP round trip was 314 ms; this is not speech or G2 latency.
+  Draft signature was Sohail. No send request was made and no cloud email is verified.
+- Confirmed a fresh backend startup in Railway logs after restart, then compared
+  the entire digest with the pre-restart response: unchanged, including the two
+  rehearsal terms. Active in-memory sessions do not survive a restart.
+- Stopped the local agent before deploying the same private identity on Railway.
+  Cloud logs confirmed protocol publication and active mailbox registration.
+  Inside the actual cloud container, read-only Bluebird and Ridgeline lookups
+  passed; personalized telemetry prep used the deployed backend and live StepFun:
+  `llm_ms=17716`, total generation 17739 ms, two terms and three questions.
+  This is handler generation, not a fresh ASI:One delivery test. A separate public
+  Almanac HTTP check returned 403; it did not independently verify registration.
+- The digest's Railway Docker build passed. Its HTTPS HTML, JS and CSS returned
+  200; JavaScript contains the live backend origin, excludes demo mode and private
+  env values. Web-origin listen preflight passed; live digest includes Ridgeline.
+  Browser rendering still needs Sohail's check.
+- Fresh local checks: backend 79 tests; agent 20 tests plus 19 subtests; client
+  24 tests; web production build. All passed, with the existing backend dependency
+  deprecation warning. Real audio on Railway, cloud G2 flow, cloud email, new
+  ASI:One delivery and live Beta build/upload/install remain untested.
+- Local client/backend env files remain on their prior development settings.
+  Use the hosted backend origin when building the live Beta. Public service URLs
+  are shared privately; the stable agent profile/shared-chat links above still apply.
+- Removed the temporary Railway SSH credential and its local key files, then
+  stopped its isolated SSH agent. The protected local SQLite backup is retained
+  for recovery. Unrelated local skills files were left untouched.
+
+### 2026-10-18 — Hosted UI check and readable agent mentions
+
+- Sohail reports the hosted dashboard link works. Its browser check is
+  user-reported; no automated visual inspection was performed.
+- A fresh ASI:One question reached the Railway agent and received help instead
+  of the learned Ridgeline definition. Reproduced with the exact readable-handle
+  prefix: routing stripped `@agent1...` addresses but not `@footnote-jargon-decoder`.
+  The same question without a prefix or with an address returned the right answer.
+- Generalized the existing leading-mention removal in `agent/footnote.py` to
+  handles containing word characters, hyphens or dots. Added ACP regression cases
+  for handles, newlines and learned definitions. All four new cases failed before
+  the fix; the full agent suite now passes: 21 tests plus 23 subtests.
+- The actual corrected chat handler, run locally against the live Railway
+  digest, acknowledged the exact question and returned the saved Ridgeline meaning,
+  inferred label and Marcus Lindqvist (Platform) as suggested contact. The digest
+  was unchanged. This verifies generation; a fresh ASI:One retest after deployment
+  is still required.
+- Redeployed the agent fix to Railway successfully. Fresh startup logs show the
+  same registered address, active registration and published Agent Chat Protocol.
+- The hosted `web` service is the post-meeting digest. The main phone/G2 UI is
+  `glasses/`; the current QR loads it from the laptop. The live Beta `.ehpk` will
+  bundle that UI and its backend origin. Packaging, upload and installation are
+  still pending; no hosted phone UI service was created.

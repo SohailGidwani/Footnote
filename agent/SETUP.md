@@ -1,5 +1,10 @@
 # Footnote agent local setup
 
+The registered agent now runs on Railway; see
+[deployment setup](../docs/railway-deployment.md). Stop that service before
+running the same identity locally, and stop the local copy before restarting
+Railway. Two copies can compete for mailbox messages.
+
 ## macOS on this checkout
 
 Use the backend's existing Python 3.11 to create an isolated agent environment.
@@ -72,9 +77,9 @@ is separate from the glasses listen path and its unchanged six-second timeout.
 
 ## Connect to Agentverse
 
-The current local agent is **Footnote Jargon Decoder**, handle
+The registered agent is **Footnote Jargon Decoder**, handle
 `@footnote-jargon-decoder`: [open its ASI:One page](https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r).
-Its seed is stored only in the ignored local `.env`. The previous placeholder-seed
+Its seed is stored in the ignored local `.env` and Railway service variables. The previous placeholder-seed
 identity is retired; use the new page rather than an old chat.
 
 While the agent is running, open the Agent Inspector URL printed in its console in a normal browser on this computer, so the page can reach `127.0.0.1:8001`. Sign in to Agentverse, select **Connect > Mailbox**, and finish the connection. In the Agent Profile, use the name **Footnote Jargon Decoder**, add a handle, and paste the description and examples from `README.md` into the Overview editor. Confirm the chat protocol is listed. Then ask the agent in ASI:One: "What does Bluebird mean at Halcyon?" Mailbox mode does not require a public backend URL for registration, but the local agent must stay running. Keep the seed private and stable so its address does not change.
