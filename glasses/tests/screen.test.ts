@@ -10,10 +10,12 @@ const base: MeetingState = {
 };
 
 test('G2 layout stays within 576 by 288', () => {
-  assert.equal(containers.length, 3);
+  assert.equal(containers.length, 6);
+  assert.equal(containers.filter(container => container.borderWidth > 0).length, 1);
   for (const container of containers) {
     assert.ok(container.xPosition >= 0 && container.xPosition + container.width <= 576);
     assert.ok(container.yPosition >= 0 && container.yPosition + container.height <= 288);
+    assert.ok(container.textColor >= 0 && container.textColor <= 4);
   }
 });
 
@@ -22,7 +24,7 @@ test('the installed Even SDK accepts the G2 startup page', () => {
   const page = new CreateStartUpPageContainer({
     containerTotalNum: containers.length,
     textObject: containers.map((container, index) => new TextContainerProperty({
-      ...container, borderWidth: 0, paddingLength: 0, content: screen[index],
+      ...container, content: screen[index],
     })),
   });
   const result = validateEvenHubPageContainer(page);
@@ -30,12 +32,12 @@ test('the installed Even SDK accepts the G2 startup page', () => {
 });
 
 test('G2 renders listening, term, queued, empty, and error states', () => {
-  assert.match(screenFor({ ...base, phase: 'active', listening: true })[1], /Listening for terms/);
+  assert.match(screenFor({ ...base, phase: 'active', listening: true })[2], /Listening for terms/);
   assert.match(screenFor({ ...base, phase: 'active', listening: true, card: {
     card_id: 'c1', term_id: 't1', term: 'Bluebird', line1: 'v3 navigation stack rewrite',
     owner_name: 'Priya Raman', owner_team: 'Autonomy', source: 'glossary', confidence: 1,
-  } })[2], /Owner: Priya Raman/);
-  assert.match(screenFor({ ...base, phase: 'active', notice: 'Queued for Priya Raman' })[1], /Question saved/);
-  assert.match(screenFor(base)[1], /Ready for context/);
-  assert.match(screenFor({ ...base, phase: 'active', error: 'Cannot reach backend' })[1], /Connection issue/);
+  } })[4], /Ask Priya Raman/);
+  assert.match(screenFor({ ...base, phase: 'active', notice: 'Queued for Priya Raman' })[2], /Question saved/);
+  assert.match(screenFor(base)[2], /Ready for context/);
+  assert.match(screenFor({ ...base, phase: 'active', error: 'Cannot reach backend' })[2], /Connection issue/);
 });

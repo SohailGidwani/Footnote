@@ -381,6 +381,8 @@ def create_api(db_path: str | None = None, pack_path=None) -> FastAPI:
             row = st.store.draft(draft_id)
             if st.store.session(row["session_id"])["ended_at"] is None:
                 raise HTTPException(409, "End the meeting before sending")
+            if row["discarded"]:
+                raise HTTPException(409, "Draft was discarded")
             if row["status"] != "sent":
                 person = st.store.person(row["owner_id"])
                 try:
@@ -393,6 +395,22 @@ def create_api(db_path: str | None = None, pack_path=None) -> FastAPI:
                 st.store.mark_sent(draft_id)
                 log.info("sent draft=%s to demo inbox (display to=%s)", draft_id, person["email"])
         return {"sent": True}
+
+    @api.post("/drafts/{draft_id}/discard")
+    async def discard_draft(draft_id: str, request: Request):
+        st = get_state(request)
+        if not st.store.draft(draft_id):
+            raise HTTPException(404, "Unknown draft")
+        lock = st.send_locks.setdefault(draft_id, asyncio.Lock())
+        async with lock:
+            row = st.store.draft(draft_id)
+            if st.store.session(row["session_id"])["ended_at"] is None:
+                raise HTTPException(409, "End the meeting before discarding")
+            if row["status"] == "sent":
+                raise HTTPException(409, "Sent drafts cannot be discarded")
+            if not row["discarded"]:
+                st.store.mark_discarded(draft_id)
+        return {"discarded": True}
 
     @api.get("/digest")
     async def digest(request: Request):

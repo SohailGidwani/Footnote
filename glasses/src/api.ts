@@ -34,6 +34,7 @@ export interface Api {
   mute(term: string): Promise<{ muted: true }>;
   end(session: string): Promise<{ drafts: Draft[] }>;
   send(draft: string): Promise<{ sent: true }>;
+  discard(draft: string): Promise<{ discarded: true }>;
   digest(): Promise<Digest>;
 }
 
@@ -104,6 +105,7 @@ export function createApi(backendUrl: string, fetcher: typeof fetch = fetch): Ap
     mute: term => request(`/terms/${encodeURIComponent(term)}/mute`, (v): v is { muted: true } => record(v) && v.muted === true, {}),
     end: session => request(`/session/${encodeURIComponent(session)}/end`, (v): v is { drafts: Draft[] } => record(v) && Array.isArray(v.drafts) && v.drafts.every(isDraft), {}),
     send: draft => request(`/drafts/${encodeURIComponent(draft)}/send`, (v): v is { sent: true } => record(v) && v.sent === true, {}),
+    discard: draft => request(`/drafts/${encodeURIComponent(draft)}/discard`, (v): v is { discarded: true } => record(v) && v.discarded === true, {}),
     digest: () => request('/digest', isDigest),
   };
 }

@@ -33,6 +33,20 @@ test('phone and gestures share start, queue, mute, end and explicit send state',
   meeting.dispose();
 });
 
+test('discard removes an ended draft and permits a new meeting', async () => {
+  const { meeting } = setup();
+  await meeting.start();
+  await meeting.listenText('Bluebird');
+  await meeting.queue();
+  await meeting.end();
+  const draftId = meeting.state.drafts[0].draft_id;
+  await meeting.discard(draftId);
+  assert.deepEqual(meeting.state.drafts, []);
+  await meeting.start();
+  assert.equal(meeting.state.phase, 'active');
+  meeting.dispose();
+});
+
 test('card expiry advances after eight seconds and queue feedback lasts two seconds', async (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { meeting } = setup();

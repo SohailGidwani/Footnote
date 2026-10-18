@@ -23,12 +23,17 @@ POST /cards/{card_id}/queue {session_id} -> {queued: true, owner_name}
 POST /terms/{term_id}/mute               -> {muted: true}
 POST /session/{session_id}/end           -> {drafts: Draft[]}
 POST /drafts/{draft_id}/send             -> {sent: true}
+POST /drafts/{draft_id}/discard          -> {discarded: true}
 GET  /digest                             -> {terms_learned[], people_to_meet[], sent[]}
 GET  /health                             -> {ok: true}
 
 Card  = {card_id, term_id, term, line1, owner_name, owner_team, source: "glossary"|"llm", confidence}
         term <= 24 chars, line1 <= 44 chars, owner_name + owner_team <= 40 chars
 Draft = {draft_id, to_name, to_email, subject, body, terms[]}
+
+Discard is allowed only after the meeting ends and before send. A sent draft
+returns 409. A discarded draft is omitted from repeated /end responses and
+cannot be sent (409). It is not shown as pending in /digest.
 
 A term is never returned as a card if muted or seen >= 3 times.
 The backend never returns more than 2 cards per /listen call.

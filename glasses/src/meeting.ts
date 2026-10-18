@@ -180,6 +180,13 @@ export class Meeting {
     if (this.state.phase !== 'ended' || this.state.sent.includes(id) || !this.state.drafts.some(d => d.draft_id === id)) return;
     await this.action(async () => { await this.api.send(id); this.state.sent.push(id); });
   }
+  async discard(id: string) {
+    if (this.state.phase !== 'ended' || this.state.sent.includes(id) || !this.state.drafts.some(d => d.draft_id === id)) return;
+    await this.action(async () => {
+      await this.api.discard(id);
+      this.state.drafts = this.state.drafts.filter(draft => draft.draft_id !== id);
+    });
+  }
   audio(frame: Uint8Array) {
     if (!this.state.listening || this.state.phase !== 'active' || this.disposed) return;
     for (const chunk of this.pcm.push(frame)) this.enqueueAudio(chunk);

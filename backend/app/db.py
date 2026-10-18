@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS drafts (
   id TEXT PRIMARY KEY, session_id TEXT NOT NULL, owner_id TEXT NOT NULL,
   subject TEXT NOT NULL, body TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','sent')),
-  sent_at REAL
+  sent_at REAL, discarded INTEGER NOT NULL DEFAULT 0
 );
 """
 
@@ -82,6 +82,9 @@ class Store:
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.executescript(SCHEMA)
+        if "discarded" not in {row["name"] for row in self.conn.execute("PRAGMA table_info(drafts)")}:
+            self.conn.execute("ALTER TABLE drafts ADD COLUMN discarded INTEGER NOT NULL DEFAULT 0")
+            self.conn.commit()
         self.pack = json.loads(Path(pack_path).read_text(encoding="utf-8"))
         self.terms_version = 0  # bumps whenever the glossary changes (matcher rebuilds)
         self.seed()
@@ -326,7 +329,7 @@ class Store:
                 "subject": row["subject"], "body": row["body"], "terms": terms}
 
     def drafts_for_session(self, session_id: str) -> list[dict]:
-        rows = self.conn.execute("SELECT * FROM drafts WHERE session_id=? ORDER BY rowid", (session_id,))
+        rows = self.conn.execute("SELECT * FROM drafts WHERE session_id=? AND discarded=0 ORDER BY rowid", (session_id,))
         return [self.draft_dict(r) for r in rows.fetchall()]
 
     def draft(self, draft_id: str):
@@ -334,6 +337,10 @@ class Store:
 
     def mark_sent(self, draft_id: str) -> None:
         self.conn.execute("UPDATE drafts SET status='sent', sent_at=? WHERE id=?", (time.time(), draft_id))
+        self.conn.commit()
+
+    def mark_discarded(self, draft_id: str) -> None:
+        self.conn.execute("UPDATE drafts SET discarded=1 WHERE id=? AND status='draft'", (draft_id,))
         self.conn.commit()
 
     # --- digest ---------------------------------------------------------------
@@ -353,7 +360,10 @@ class Store:
                           "owner_team": r["team"], "seen_count": r["count"], "muted": bool(r["muted"]),
                           "source": r["source"]})
             people.setdefault(r["pid"], self._person_entry(r["pid"]))["terms"].append(r["term"])
-        for r in self.conn.execute("SELECT DISTINCT owner_id FROM queue WHERE created_at>=?", (since,)):
+        for r in self.conn.execute(
+                "SELECT DISTINCT q.owner_id FROM queue q JOIN drafts d "
+                "ON d.session_id=q.session_id AND d.owner_id=q.owner_id "
+                "WHERE q.created_at>=? AND d.discarded=0", (since,)):
             people.setdefault(r["owner_id"], self._person_entry(r["owner_id"]))["question_queued"] = True
         ordered = sorted(people.values(), key=lambda i: not i["question_queued"])  # asked-about people first
         sent = []

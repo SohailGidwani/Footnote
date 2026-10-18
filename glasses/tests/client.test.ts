@@ -58,6 +58,8 @@ test('REST failures and malformed cards never look like successful responses', a
   await assert.rejects(malformed.listenText('session', 'Bluebird'), /Invalid/);
   const send = createApi('https://api.example.com', async () => Response.json({ sent: false }));
   await assert.rejects(send.send('draft'), /Invalid/);
+  const discard = createApi('https://api.example.com', async () => Response.json({ discarded: false }));
+  await assert.rejects(discard.discard('draft'), /Invalid/);
 });
 
 test('requests abort after six seconds instead of accepting late cards', async (t) => {
@@ -86,4 +88,15 @@ test('mock mode supports the complete approval flow, mute and three-sighting fad
   await api.send(drafts[0].draft_id);
   assert.equal((await api.digest()).sent.length, 1);
   await assert.rejects(api.queue(first.cards[0].card_id, session_id));
+});
+
+test('mock draft discard removes it from repeated end and blocks sending', async () => {
+  const api = createMockApi();
+  const { session_id } = await api.start();
+  const { cards } = await api.listenText(session_id, 'Bluebird');
+  await api.queue(cards[0].card_id, session_id);
+  const draft = (await api.end(session_id)).drafts[0];
+  assert.deepEqual(await api.discard(draft.draft_id), { discarded: true });
+  assert.deepEqual((await api.end(session_id)).drafts, []);
+  await assert.rejects(api.send(draft.draft_id));
 });

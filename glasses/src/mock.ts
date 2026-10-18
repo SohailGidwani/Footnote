@@ -11,6 +11,7 @@ export function createMockApi(): Api {
   const muted = new Set<string>();
   const drafts = new Map<string, Draft>();
   const sent = new Set<string>();
+  const discarded = new Set<string>();
   function active(id: string) {
     const session = sessions.get(id);
     if (!session || session.ended) throw new Error('Mock meeting is not active.');
@@ -53,12 +54,19 @@ export function createMockApi(): Api {
         drafts.set(draft.draft_id, draft);
         return draft;
       });
-      return { drafts: result };
+      return { drafts: result.filter(draft => !discarded.has(draft.draft_id)) };
     },
     async send(id) {
       if (!drafts.has(id)) throw new Error('Mock draft not found.');
+      if (discarded.has(id)) throw new Error('Mock draft was discarded.');
       sent.add(id);
       return { sent: true };
+    },
+    async discard(id) {
+      if (!drafts.has(id)) throw new Error('Mock draft not found.');
+      if (sent.has(id)) throw new Error('Sent mock drafts cannot be discarded.');
+      discarded.add(id);
+      return { discarded: true };
     },
     async digest() {
       return {

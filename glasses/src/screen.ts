@@ -1,27 +1,32 @@
 import type { MeetingState } from './meeting.ts';
 
+// Plain-text layers keep one outline and a separate brightness for each line.
+// The empty outline layer is behind the text layers.
 export const containers = [
-  { containerID: 1, containerName: 'status', xPosition: 16, yPosition: 12, width: 544, height: 40, textColor: 2, isEventCapture: 0 },
-  { containerID: 2, containerName: 'term', xPosition: 16, yPosition: 78, width: 544, height: 56, textColor: 4, isEventCapture: 1 },
-  { containerID: 3, containerName: 'detail', xPosition: 16, yPosition: 144, width: 544, height: 128, textColor: 3, isEventCapture: 0 },
+  { containerID: 1, containerName: 'status', xPosition: 16, yPosition: 10, width: 544, height: 31, textColor: 2, borderWidth: 0, paddingLength: 0, isEventCapture: 0 },
+  { containerID: 2, containerName: 'card-outline', xPosition: 16, yPosition: 48, width: 544, height: 224, textColor: 2, borderWidth: 1, borderColor: 4, paddingLength: 0, isEventCapture: 0 },
+  { containerID: 3, containerName: 'term', xPosition: 38, yPosition: 69, width: 500, height: 47, textColor: 4, borderWidth: 0, paddingLength: 0, isEventCapture: 1 },
+  { containerID: 4, containerName: 'meaning', xPosition: 38, yPosition: 126, width: 500, height: 52, textColor: 3, borderWidth: 0, paddingLength: 0, isEventCapture: 0 },
+  { containerID: 5, containerName: 'owner', xPosition: 38, yPosition: 187, width: 500, height: 34, textColor: 2, borderWidth: 0, paddingLength: 0, isEventCapture: 0 },
+  { containerID: 6, containerName: 'hint', xPosition: 38, yPosition: 236, width: 500, height: 25, textColor: 1, borderWidth: 0, paddingLength: 0, isEventCapture: 0 },
 ];
 
 export function screenFor(state: MeetingState): string[] {
-  const count = `${state.queued.length} SAVED`;
+  const outline = '';
   const mode = state.phase === 'ending' ? 'FINISHING' :
     state.phase === 'ended' ? 'DONE' :
     state.listening ? 'LISTENING' :
     state.phase === 'active' ? 'PAUSED' : 'READY';
-  const status = `FOOTNOTE / ${mode} / ${count}`;
-  if (state.error) return [status, 'Connection issue', `${state.error.slice(0, 92)}\nUse phone controls or reconnect G2.`];
-  if (state.phase === 'ending') return [status, 'Wrapping up', 'Preparing your follow-up questions...'];
-  if (state.phase === 'ended') return [status, 'Meeting complete', `${count}\nReview your follow-ups on your phone.`];
-  if (state.notice) return [status, 'Question saved', `${state.notice}\nHold to end meeting`];
+  const status = `FOOTNOTE / ${mode} / ${state.queued.length} SAVED`;
+  if (state.error) return [status, outline, 'Connection issue', 'Check your phone.', '', 'Press to retry'];
+  if (state.phase === 'ending') return [status, outline, 'Wrapping up', 'Preparing your questions.', '', 'Review on phone'];
+  if (state.phase === 'ended') return [status, outline, 'Meeting complete', 'Your notes are on your phone.', '', ''];
+  if (state.notice) return [status, outline, 'Question saved', 'Saved for after the meeting.', '', 'Returning to listening'];
   if (!state.card) return state.phase === 'idle'
-    ? [status, 'Ready for context', 'Press to start your meeting.']
+    ? [status, outline, 'Ready for context', 'Press to start your meeting.', '', '']
     : state.listening
-      ? [status, 'Listening for terms', 'New words will appear here.\nPress to pause / Hold to end']
-      : [status, 'Listening paused', 'Press to resume / Hold to end'];
+      ? [status, outline, 'Listening for terms', 'A new word will appear here.', '', 'Press to pause']
+      : [status, outline, 'Listening paused', 'Press to resume.', '', 'Hold to end'];
   const card = state.card;
-  return [status, card.term, `${card.line1}\n${card.source === 'llm' ? 'Ask' : 'Owner'}: ${card.owner_name} (${card.owner_team})\nPress: ask / Down: know / Up: next`];
+  return [status, outline, card.term, card.line1, `Ask ${card.owner_name}`, 'Press to save question'];
 }

@@ -1,5 +1,19 @@
 # Footnote handoff for Kartik
 
+## Design branch contract addition (kartik/design)
+
+`POST /drafts/{draft_id}/discard` returns `{discarded: true}`. It is valid only
+after `/session/{id}/end` and before the draft is sent. A sent or discarded draft
+cannot be sent or discarded again as a new action (sent returns 409; discard is
+idempotent). Discarded drafts are omitted from repeated `/end` responses and are
+not marked as pending in `/digest`. The phone waits about five seconds before
+calling discard so its Undo action can restore the draft. No deployment is planned.
+
+Afterimage Paper screens and G2 preview:
+https://app.paper.design/file/01M56HH1VJ2BSH57HAFMAF1RED/p-5-0
+The design branch must stay separate from `main` until Sohail retests the full
+loop on physical G2. The border and text fit need that device check.
+
 API timing update (Sohail): background StepFun explanations are capped at 25 s
 instead of 12 s; measured live Step-5 Preview calls took 15.7-16.5 s. Phone requests
 still time out after 6 s. Paths and response shapes are unchanged. Inferred cards

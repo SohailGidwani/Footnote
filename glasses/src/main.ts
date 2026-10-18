@@ -13,18 +13,20 @@ import './style.css';
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <main class="companion">
     <header class="masthead"><a class="wordmark" href="./">footnote<span aria-hidden="true">*</span></a><span id="mode" class="mode"></span></header>
-    <section id="draft-section" class="draft-section" aria-labelledby="draft-title" hidden><h2 id="draft-title">Before you send</h2><p class="draft-intro">A draft is ready. Read it, then choose whether to send.</p><div id="drafts"></div><p class="secondary" id="delivery-note"></p></section>
+    <section id="draft-section" class="draft-section" aria-labelledby="draft-title" hidden><span class="eyebrow">AFTER THE ROOM</span><h2 id="draft-title">Before you send.</h2><p class="draft-intro">One note for each person. Read it first.</p><p id="sent-feedback" class="sent-feedback" role="status" hidden></p><div id="drafts"></div><p class="secondary" id="delivery-note"></p></section>
     <section id="meeting-panel" aria-labelledby="meeting-title" class="meeting-panel">
-      <div class="meeting-heading"><div><h1 id="meeting-title">Your meeting</h1><p id="meeting-copy">Start when the conversation starts. The glasses will show terms as they come up.</p></div><span id="meeting-status" role="status">Ready</span></div>
+      <div class="meeting-heading"><div><span class="eyebrow">IN THE ROOM</span><h1 id="meeting-title">Keep the thread.</h1><p id="meeting-copy">Start when the conversation starts. New terms appear quietly on G2.</p></div><span id="meeting-status" role="status">Ready</span></div>
       <div id="error" class="error" role="alert" hidden></div>
       <div class="meeting-controls"><button id="start" class="primary">Start listening</button><button id="pause" hidden>Pause</button></div>
       <p id="device-status" class="device-status" role="status">Connecting to glasses… Phone controls are ready.</p>
-      <div class="glasses-preview" aria-label="Glasses display preview"><div class="preview-label"><span>On your glasses</span><span>576 × 288</span></div><div class="display-canvas"><p id="display-status"></p><p id="display-term"></p><p id="display-detail"></p></div></div>
+      <div id="connection-error" class="connection-error" role="status" hidden><span class="eyebrow">G2 DISCONNECTED</span><strong>We lost G2.</strong><p>Your saved questions are still here. Reconnect your glasses to resume audio.</p><button id="connection-fallback" type="button">Try a phrase on your phone</button></div>
+      <div class="glasses-preview" aria-label="Glasses display preview"><div class="preview-label"><span>On your glasses</span><span>576 × 288</span></div><div class="display-canvas"><p id="display-status"></p><div class="display-card"><p id="display-term"></p><p id="display-meaning"></p><p id="display-owner"></p><p id="display-hint"></p></div></div></div>
       <div id="card-controls" class="card-controls" hidden><button id="queue" class="primary" disabled>Ask later</button><button id="mute" disabled>I know this</button><button id="next" disabled>Next card</button></div>
       <p class="hint">On G2: press to save a question, swipe down if you know it, swipe up for the next term, or hold to end.</p>
       <button id="end" class="end-meeting" disabled>End meeting</button>
     </section>
     <section class="question-panel" aria-labelledby="queue-title"><div class="section-heading"><h2 id="queue-title">Questions to carry</h2><span id="queue-count">None yet</span></div><ul id="questions" class="entries"></ul></section>
+    <div id="undo-toast" class="undo-toast" role="status" hidden><span>Draft discarded</span><button id="undo-discard" type="button">Undo</button></div>
     <details id="fallback"><summary>Try a phrase on your phone</summary><p class="secondary">Use typed input if the room is noisy or your glasses are disconnected.</p><form id="text-form"><label for="phrase">Meeting phrase</label><textarea id="phrase" rows="2" maxlength="2000">Bluebird is slipping because FCS is still on the old golden path.</textarea><button id="listen-text" type="submit" disabled>Find terms</button></form><p id="last-phrase" class="secondary"></p></details>
     <details id="demo-tools" hidden><summary>Simulator gestures</summary><div class="demo-buttons"><button data-gesture="click">Single press</button><button data-gesture="up">Swipe up</button><button data-gesture="down">Swipe down</button><button data-gesture="end">Long press</button><button data-gesture="exit">Double press</button></div><p id="exit-note" role="status"></p></details>
     <footer>Less jargon. More belonging.<span>Footnote / LA Hacks 2026</span></footer>
@@ -41,6 +43,9 @@ let rendering = false;
 let renderAgain = false;
 const lastDisplay = new Map<number, string>();
 let disposed = false;
+const pendingDiscard = new Map<string, ReturnType<typeof setTimeout>>();
+let lastDiscard: string | null = null;
+let discardWork: Promise<void> = Promise.resolve();
 
 const meeting = new Meeting(api, async enabled => {
   if (__MOCK_MODE__) return;
@@ -53,12 +58,13 @@ const meeting = new Meeting(api, async enabled => {
 function render() {
   const s = meeting.state;
   const screen = screenFor(s);
-  ['display-status', 'display-term', 'display-detail'].forEach((id, index) => text(id, screen[index]));
-  text('meeting-title', s.phase === 'ended' ? 'Meeting complete' : s.listening ? 'Listening' : s.phase === 'active' ? 'Listening paused' : 'Your meeting');
-  text('meeting-copy', s.phase === 'ended' ? 'Review your drafts above, or start another meeting.' : s.listening ? 'Terms appear on your glasses as the conversation moves.' : s.phase === 'active' ? 'Press resume when you are ready to listen again.' : 'Start when the conversation starts. The glasses will show terms as they come up.');
+  [['display-status', 0], ['display-term', 2], ['display-meaning', 3], ['display-owner', 4], ['display-hint', 5]].forEach(([id, index]) => text(id as string, screen[index as number]));
+  text('meeting-title', s.phase === 'ended' ? 'Meeting complete.' : s.listening ? 'Listening.' : s.phase === 'active' ? 'Listening paused.' : 'Keep the thread.');
+  text('meeting-copy', s.phase === 'ended' ? 'Review your drafts above, or start another meeting.' : s.listening ? 'Stay with the conversation. We’ll catch the terms.' : s.phase === 'active' ? 'Press resume when you are ready to listen again.' : 'Start when the conversation starts. New terms appear quietly on G2.');
   text('meeting-status', s.phase === 'ending' ? 'Finishing' : s.phase === 'ended' ? 'Done' : s.listening ? 'Live' : s.phase === 'active' ? 'Paused' : 'Ready');
   const start = element<HTMLButtonElement>('start');
-  start.textContent = s.phase === 'active' ? 'Resume listening' : s.phase === 'ended' ? 'Start another meeting' : 'Start listening';
+  start.textContent = s.phase === 'active' ? 'Resume listening' : s.phase === 'ended' ? 'Start another meeting' :
+    !element('connection-error').hidden ? 'Start meeting on phone' : 'Start listening';
   start.hidden = s.listening || s.phase === 'ending';
   start.disabled = s.busy;
   element<HTMLButtonElement>('pause').hidden = !s.listening;
@@ -72,13 +78,13 @@ function render() {
   text('queue', s.card ? `Ask ${s.card.owner_name.split(' ')[0] || 'the owner'} later` : 'Ask later');
   text('error', s.error);
   element('error').hidden = !s.error;
-  text('queue-count', s.queued.length ? `${s.queued.length} saved` : 'None yet');
+  text('queue-count', s.queued.length ? `${s.queued.length} SAVED` : 'NONE YET');
   const questions = element('questions');
   questions.replaceChildren();
   if (!s.queued.length) {
     const li = document.createElement('li');
     li.className = 'empty';
-    li.textContent = 'Hear something unfamiliar? Press the glasses to save a question for later.';
+    li.textContent = 'Hear something unfamiliar? Press G2 to save a question.';
     questions.append(li);
   }
   for (const [index, card] of s.queued.entries()) {
@@ -92,10 +98,11 @@ function render() {
   element('draft-section').hidden = s.phase !== 'ended';
   text('delivery-note', __MOCK_MODE__ ? 'Demo only. Approving a draft simulates delivery; no email is sent.' : 'Each approval sends one message to the configured demo inbox. Owner addresses are display-only.');
   const drafts = element('drafts'); drafts.replaceChildren();
-  if (s.phase === 'ended' && !s.drafts.length) {
-    const empty = document.createElement('p'); empty.textContent = 'No questions queued this time. Start another meeting whenever you need a little context.'; drafts.append(empty);
+  const visibleDrafts = s.drafts.filter(draft => !pendingDiscard.has(draft.draft_id));
+  if (s.phase === 'ended' && !visibleDrafts.length) {
+    const empty = document.createElement('p'); empty.textContent = 'No drafts left to review. Start another meeting whenever you need context.'; drafts.append(empty);
   }
-  for (const draft of s.drafts) {
+  for (const draft of visibleDrafts) {
     const article = document.createElement('article'); article.className = 'draft';
     const recipient = document.createElement('div'); recipient.className = 'draft-field';
     const toLabel = document.createElement('span'); toLabel.textContent = 'To';
@@ -110,12 +117,46 @@ function render() {
     const sent = s.sent.includes(draft.draft_id);
     button.textContent = sent ? (__MOCK_MODE__ ? 'Sent (demo)' : 'Sent') : 'Approve and send';
     button.disabled = sent || s.busy;
-    button.onclick = () => { void meeting.send(draft.draft_id); };
-    article.append(recipient, subjectField, body, button); drafts.append(article);
+    button.onclick = () => { void meeting.send(draft.draft_id).then(() => {
+      if (meeting.state.sent.includes(draft.draft_id)) {
+        text('sent-feedback', `Message sent to ${draft.to_name}.`);
+        element('sent-feedback').hidden = false;
+      }
+    }); };
+    const discard = document.createElement('button'); discard.className = 'discard'; discard.textContent = 'Discard';
+    discard.disabled = sent || s.busy || pendingDiscard.size > 0;
+    discard.onclick = () => scheduleDiscard(draft.draft_id);
+    const actions = document.createElement('div'); actions.className = 'draft-actions'; actions.append(button, discard);
+    article.append(recipient, subjectField, body, actions); drafts.append(article);
   }
+  element('undo-toast').hidden = !lastDiscard || !pendingDiscard.has(lastDiscard);
   text('last-phrase', s.transcript ? `Last phrase: ${s.transcript}` : '');
   scheduleDisplay();
 }
+
+function scheduleDiscard(id: string) {
+  if (pendingDiscard.size > 0) return;
+  const timer = setTimeout(() => {
+    if (lastDiscard === id) lastDiscard = null;
+    render();
+    discardWork = discardWork.then(() => meeting.discard(id));
+    void discardWork.then(() => {
+      pendingDiscard.delete(id);
+      render();
+    });
+  }, 5000);
+  pendingDiscard.set(id, timer);
+  lastDiscard = id;
+  render();
+}
+
+element<HTMLButtonElement>('undo-discard').onclick = () => {
+  if (!lastDiscard) return;
+  clearTimeout(pendingDiscard.get(lastDiscard));
+  pendingDiscard.delete(lastDiscard);
+  lastDiscard = null;
+  render();
+};
 
 function scheduleDisplay() {
   if (!pageReady || disposed) return;
@@ -135,7 +176,10 @@ async function updateDisplay() {
       }
       lastDisplay.set(container.containerID, screen[index]);
     }
-  } catch (error) { text('device-status', error instanceof Error ? error.message : 'Glasses display unavailable.'); }
+  } catch (error) {
+    text('device-status', error instanceof Error ? error.message : 'Glasses display unavailable.');
+    element('connection-error').hidden = false;
+  }
   finally { rendering = false; if (renderAgain) scheduleDisplay(); }
 }
 
@@ -171,6 +215,11 @@ element('queue').onclick = () => { void meeting.queue(); };
 element('mute').onclick = () => { void meeting.mute(); };
 element('next').onclick = () => meeting.next();
 element('text-form').onsubmit = event => { event.preventDefault(); void meeting.listenText(element<HTMLTextAreaElement>('phrase').value); };
+element<HTMLButtonElement>('connection-fallback').onclick = async () => {
+  if (meeting.state.phase === 'idle') await meeting.start();
+  element<HTMLDetailsElement>('fallback').open = true;
+  element<HTMLTextAreaElement>('phrase').focus();
+};
 document.querySelectorAll<HTMLButtonElement>('[data-gesture]').forEach(button => {
   button.onclick = () => { void gesture(button.dataset.gesture as ReturnType<typeof gestureOf>); };
 });
@@ -184,23 +233,30 @@ async function connect() {
     if (disposed) return;
     const screen = screenFor(meeting.state);
     const created = await bridge.createStartUpPageContainer(new CreateStartUpPageContainer({
-      containerTotalNum: 3,
-      textObject: containers.map((container, index) => new TextContainerProperty({ ...container, borderWidth: 0, paddingLength: 0, content: screen[index] })),
+      containerTotalNum: containers.length,
+      textObject: containers.map((container, index) => new TextContainerProperty({ ...container, content: screen[index] })),
     }));
     if (created !== 0) throw new Error(`Glasses startup failed (${created}). Reopen Footnote after connecting G2.`);
     pageReady = true;
+    element('connection-error').hidden = true;
     text('device-status', __MOCK_MODE__ ? 'Display connected. Demo mode does not record audio.' : 'G2 connected. Audio stays off until you start a meeting.');
     unsubscribe = bridge.onEvenHubEvent(event => {
       if (!__MOCK_MODE__ && event.audioEvent?.audioPcm) meeting.audio(event.audioEvent.audioPcm);
       void gesture(gestureOf(event)).catch(error => text('device-status', String(error)));
     });
     scheduleDisplay();
-  } catch (error) { text('device-status', error instanceof Error ? error.message : 'Open in Even Hub or the simulator to connect G2.'); }
+  } catch (error) {
+    text('device-status', error instanceof Error ? error.message : 'Open in Even Hub or the simulator to connect G2.');
+    element('connection-error').hidden = false;
+    render();
+  }
 }
 function cleanup() {
   if (disposed) return;
   disposed = true;
   clearTimeout(renderTimer);
+  for (const timer of pendingDiscard.values()) clearTimeout(timer);
+  pendingDiscard.clear();
   meeting.dispose();
   unsubscribe?.();
 }

@@ -32,7 +32,7 @@ function DigestList({ title, entries, kind, empty }: { title: string; entries: D
     <ul className="entries">{entries.length ? entries.map((entry, index) => {
       const name = field(entry, names);
       const detail = typeof entry === 'string' ? '' : field(entry, details);
-      return <li key={index}><strong>{name || 'Details available in your meeting'}</strong>{detail && <span>{detail}</span>}</li>;
+      return <li key={index}>{kind === 'terms' && <span className="digest-index">{String(index + 1).padStart(2, '0')}</span>}<div className="digest-copy"><strong>{name || 'Details available in your meeting'}</strong>{detail && <span>{detail}</span>}</div></li>;
     }) : <li className="empty">{empty}</li>}</ul>
   </section>;
 }
@@ -53,7 +53,7 @@ function App() {
   const firstTerm = digest?.terms_learned[0];
   return <main className="digest">
     <header className="masthead"><a className="wordmark" href="./">footnote<span aria-hidden="true">*</span></a><div className="header-actions"><span className="mode">{__MOCK_MODE__ ? 'Sample digest' : 'Your digest'}</span><button disabled={loading} onClick={() => setRevision(value => value + 1)}>{loading ? 'Refreshing…' : 'Refresh'}</button></div></header>
-    <div className="digest-intro"><div><h1>What stayed with you.</h1><p>A record of the words you caught and the people who can help.</p></div>{digest && <div className="digest-meta"><span>Today</span><span>{count(digest.terms_learned.length, 'word', 'words')} · {count(digest.people_to_meet.length, 'person', 'people')} · {count(digest.sent.length, 'message', 'messages')}</span></div>}</div>
+    <div className="digest-intro"><div><span className="eyebrow">After the room</span><h1>{digest?.terms_learned.length ? `${digest.terms_learned.length} things to remember.` : 'What stayed with you.'}</h1><p>Terms, people, and the questions you sent.</p></div>{digest && <div className="digest-meta"><span>{count(digest.terms_learned.length, 'word', 'words')}</span><span>{count(digest.people_to_meet.length, 'person', 'people')}</span><span>{count(digest.sent.length, 'message', 'messages')} sent</span></div>}</div>
     {loading && !digest && <p className="secondary" role="status">Gathering your meeting notes…</p>}
     {error && <div className="error" role="alert">{error} Use Refresh to try again.</div>}
     {digest && <div aria-busy={loading}>

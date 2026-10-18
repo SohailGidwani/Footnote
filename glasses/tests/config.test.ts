@@ -29,9 +29,12 @@ test('only public config is exposed and live network whitelist contains exactly 
 
 test('the root layout has one event capture and an idle ready state', () => {
   assert.equal(containers.filter(container => container.isEventCapture === 1).length, 1);
-  assert.deepEqual(containers.map(container => [container.containerID, container.containerName, container.textColor]), [[1, 'status', 2], [2, 'term', 4], [3, 'detail', 3]]);
+  assert.deepEqual(containers.map(container => [container.containerID, container.containerName, container.textColor]), [
+    [1, 'status', 2], [2, 'card-outline', 2], [3, 'term', 4],
+    [4, 'meaning', 3], [5, 'owner', 2], [6, 'hint', 1],
+  ]);
   const meeting = new Meeting(createMockApi(), async () => {}, () => {});
-  assert.deepEqual(screenFor(meeting.state).slice(1), ['Ready for context', 'Press to start your meeting.']);
+  assert.deepEqual(screenFor(meeting.state).slice(1), ['', 'Ready for context', 'Press to start your meeting.', '', '']);
   meeting.dispose();
 });
 
@@ -39,8 +42,8 @@ test('inferred cards suggest a contact instead of claiming confirmed ownership',
   const meeting = new Meeting(createMockApi(), async () => {}, () => {});
   meeting.state.card = { card_id: 'c', term_id: 't', term: 'NEW PROJECT', line1: 'Meaning inferred from the meeting',
     owner_name: 'Marcus L.', owner_team: 'Platform', source: 'llm', confidence: 0.6 };
-  assert.ok(screenFor(meeting.state)[2].includes('Ask: Marcus L. (Platform)'));
+  assert.equal(screenFor(meeting.state)[4], 'Ask Marcus L.');
   meeting.state.card.source = 'glossary';
-  assert.ok(screenFor(meeting.state)[2].includes('Owner: Marcus L. (Platform)'));
+  assert.equal(screenFor(meeting.state)[4], 'Ask Marcus L.');
   meeting.dispose();
 });

@@ -5,7 +5,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from app import llm, mailer, stt
+from app import config, llm, mailer, stt
+from app.db import Store
 from app.main import slow_path
 
 from .conftest import say
@@ -366,6 +367,40 @@ def test_failed_send_keeps_draft_retryable(client, session, monkeypatch):
     (d,) = client.post(f"/session/{session}/end").json()["drafts"]
     assert client.post(f"/drafts/{d['draft_id']}/send").status_code == 502
     assert client.get("/digest").json()["sent"] == []
+
+
+def test_discard_requires_ended_meeting_and_removes_draft_from_retries(client, session):
+    card = say(client, session, "Bluebird")["cards"][0]
+    client.post(f"/cards/{card['card_id']}/queue", json={"session_id": session})
+    store = client.app.state.footnote.store
+    draft_id = store.drafts_for_session(session)[0]["draft_id"]
+    assert client.post(f"/drafts/{draft_id}/discard").status_code == 409
+
+    assert client.post(f"/session/{session}/end").status_code == 200
+    assert client.post(f"/drafts/{draft_id}/discard").json() == {"discarded": True}
+    assert client.post(f"/drafts/{draft_id}/discard").json() == {"discarded": True}
+    assert client.post(f"/session/{session}/end").json()["drafts"] == []
+    assert client.post(f"/drafts/{draft_id}/send").status_code == 409
+    assert not client.get("/digest").json()["people_to_meet"][0]["question_queued"]
+
+
+def test_sent_draft_cannot_be_discarded(client, session, fake_mail):
+    card = say(client, session, "Bluebird")["cards"][0]
+    client.post(f"/cards/{card['card_id']}/queue", json={"session_id": session})
+    draft = client.post(f"/session/{session}/end").json()["drafts"][0]
+    assert client.post(f"/drafts/{draft['draft_id']}/send").status_code == 200
+    assert client.post(f"/drafts/{draft['draft_id']}/discard").status_code == 409
+
+
+def test_existing_database_adds_discard_column(tmp_path):
+    path = tmp_path / "old.db"
+    with sqlite3.connect(path) as conn:
+        conn.execute("CREATE TABLE drafts (id TEXT PRIMARY KEY, session_id TEXT NOT NULL, "
+                     "owner_id TEXT NOT NULL, subject TEXT NOT NULL, body TEXT NOT NULL, "
+                     "status TEXT NOT NULL DEFAULT 'draft', sent_at REAL)")
+    store = Store(str(path), config.pack_path())
+    assert "discarded" in {row["name"] for row in store.conn.execute("PRAGMA table_info(drafts)")}
+    store.conn.close()
 
 
 def test_send_deadline_keeps_draft_retryable(client, session, monkeypatch):
