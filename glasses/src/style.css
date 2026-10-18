@@ -1,38 +1,107 @@
 @import url('../../web/src/theme.css');
 
-.companion { max-width: 940px; margin: auto; padding: 0 28px; }
-.intro { padding: 64px 0 44px; }
-.intro h1 { margin: 18px 0 20px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-height: 1.02; font-weight: 600; letter-spacing: -.075em; }
-.intro h1 em { color: var(--accent); font-style: normal; font-weight: 400; }
-.intro > p:not(.context) { max-width: 34em; color: var(--muted); font-size: 1.03rem; }
-.intro-rule { margin-top: 44px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 13px 0; display: flex; gap: 12px; align-items: center; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .14em; }
-.intro-rule span:nth-child(odd) { color: var(--accent-strong); }
-.intro-rule span:nth-child(2), .intro-rule span:nth-child(4) { margin-right: auto; }
-.meeting-panel, .question-panel, .draft-section { background: linear-gradient(145deg, #14291d, #102018 72%); border: 1px solid var(--line); border-radius: 22px; padding: clamp(22px, 4vw, 36px); box-shadow: 0 20px 70px #0002; }
-.section-kicker { margin-bottom: 20px; }
-#meeting-status { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-size: .75rem; font-weight: 700; letter-spacing: .03em; white-space: nowrap; }
-#meeting-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; }
-#device-status { margin: 13px 0 22px; line-height: 1.5; }
-.meeting-controls, .card-controls, .demo-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0; }
-.meeting-controls button { flex: 1; min-width: 140px; }
-.card-controls button { flex: 1; min-width: 130px; }
-.glasses-preview { padding: 14px; margin: 26px 0 14px; border: 1px solid #3d5b42; border-radius: 18px; background: #07120b; box-shadow: inset 0 0 0 5px #09180e, 0 18px 40px #0004; }
-.preview-label { display: flex; justify-content: space-between; gap: 10px; margin: 3px 4px 13px; color: #80b98a; font-size: .65rem; font-weight: 700; letter-spacing: .15em; }
-.display-canvas { position: relative; width: min(100%, 576px); aspect-ratio: 2; margin: auto; background: #010704; border: 1px solid #244a2c; border-radius: 6px; font: clamp(9px, 1.65vw, 16px)/1.5 ui-monospace, Consolas, monospace; color: #a9f5a8; overflow: hidden; }
-.display-canvas p { position: absolute; margin: 0; left: 2.78%; width: 94.44%; white-space: pre-wrap; overflow-wrap: anywhere; }
-#display-status { top: 4.17%; color: #6fba79; height: 13.89%; }
-#display-term { top: 27.08%; height: 19.44%; font-size: 1.22em; color: #bef8b9; }
-#display-detail { top: 50%; height: 44.44%; color: #9ee5a1; }
-.hint { font-size: .78rem; color: var(--muted); line-height: 1.6; margin: 18px 0 0; }
-.question-panel .section-heading > span { min-width: 34px; height: 34px; border: 1px solid #54745a; border-radius: 50%; display: grid; place-items: center; font-size: .82rem; }
-.question-panel .entries li:last-child { padding-bottom: 0; }
-.draft { padding: 22px 0; border-bottom: 1px solid var(--line); }
-.draft h3 { margin-top: 0; }
-.draft-body { white-space: pre-wrap; line-height: 1.7; }
-.subject { color: var(--accent); font-size: .9rem; }
-details { border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; margin: 24px 0; background: #102018; }
-summary { cursor: pointer; color: var(--text); font-weight: 600; min-height: 24px; }
-form { display: grid; gap: 12px; margin-top: 18px; }
-textarea { width: 100%; resize: vertical; background: #08150d; color: var(--text); border: 1px solid #49654e; border-radius: 9px; padding: 14px; font: inherit; line-height: 1.6; }
-form button { justify-self: start; }
-@media (max-width: 600px) { .companion { padding: 0 18px; } .intro { padding: 46px 0 26px; } .intro h1 { font-size: clamp(2.6rem, 12vw, 4rem); } .intro-rule { margin-top: 30px; font-size: .58rem; gap: 7px; } .meeting-panel, .question-panel, .draft-section { padding: 20px; border-radius: 18px; } .meeting-controls, .card-controls { gap: 8px; } .meeting-controls button, .card-controls button { min-width: 100%; } .mode { max-width: 145px; text-align: right; } .display-canvas { font-size: clamp(7px, 2.45vw, 12px); } .hint { font-size: .74rem; } }
+.companion {
+  width: min(100%, 470px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 24px;
+  background: var(--paper);
+}
+.meeting-panel { padding: 22px 0 0; }
+.meeting-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.meeting-heading h1, .draft-section h2 {
+  margin: 0 0 8px;
+  font-size: clamp(34px, 10vw, 42px);
+  font-weight: 600;
+  line-height: 1;
+}
+.meeting-heading p, .draft-intro {
+  max-width: 360px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+#meeting-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding-top: 8px;
+  color: var(--mark);
+  font-size: 12px;
+  white-space: nowrap;
+}
+#meeting-status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.meeting-controls { display: flex; gap: 8px; margin-top: 20px; }
+.meeting-controls button { flex: 1; }
+.device-status { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+.meeting-panel .error { margin: 16px 0; }
+.glasses-preview { margin: 24px 0 0; }
+.preview-label { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; color: var(--muted); font-size: 12px; }
+.display-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2;
+  overflow: hidden;
+  background: var(--display);
+  color: var(--phosphor);
+  font-family: Consolas, 'Courier New', monospace;
+}
+.display-canvas p {
+  position: absolute;
+  left: 4.7%;
+  width: 90.6%;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#display-status { top: 10%; height: 15%; color: #80B989; font-size: clamp(9px, 2.6vw, 12px); }
+#display-term { top: 30%; height: 22%; color: var(--phosphor); font-size: clamp(18px, 6vw, 25px); line-height: 1.15; }
+#display-detail { top: 57%; height: 40%; color: #A0DBA4; font-size: clamp(11px, 3.15vw, 14px); line-height: 1.4; }
+.card-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.card-controls #queue { flex: 2 1 58%; }
+.card-controls #mute { flex: 1 1 32%; }
+.card-controls #next { flex: 1 1 100%; border: 0; min-height: 34px; padding: 2px; color: var(--muted); font-size: 13px; text-decoration: underline; }
+.card-controls #next:hover:enabled { background: transparent; color: var(--ink); }
+.hint { margin: 13px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.end-meeting { display: block; width: 100%; margin: 18px 0 0; }
+.question-panel { margin-top: 22px; padding: 19px 0 8px; border-top: 1px solid var(--rule); }
+.question-panel h2 { margin: 0; font-size: 25px; }
+.question-panel .entries li { display: flex; gap: 13px; padding: 14px 0; }
+.question-panel .entries li.empty { display: block; padding-bottom: 5px; }
+.entry-index { flex: 0 0 18px; color: var(--mark); font: 600 22px/1.2 Bahnschrift, sans-serif; }
+.entry-copy { display: flex; flex-direction: column; gap: 3px; }
+.entry-copy strong { font-size: 15px; }
+.entry-copy span { color: var(--muted); font-size: 13px; }
+.draft-section { padding-top: 22px; }
+.draft-section h2 { font-size: 40px; }
+.draft-intro { margin-bottom: 23px; }
+.draft-section #delivery-note { margin: 8px 0 0; }
+.draft { padding: 0 0 22px; }
+.draft-field { display: flex; flex-direction: column; gap: 3px; padding: 12px 0 15px; border-top: 1px solid var(--rule); }
+.draft-field > span { color: var(--muted); font-size: 12px; }
+.draft-field h3, .draft-field p { margin: 0; }
+.subject { font-size: 16px; font-weight: 600; }
+.draft-body { margin: 0; padding: 19px 0 21px; border-top: 1px solid var(--rule); white-space: pre-wrap; font-size: 15px; line-height: 1.5; }
+.draft button { width: 100%; }
+details { margin: 22px 0 0; padding: 14px 0 20px; border-top: 1px solid var(--rule); }
+summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+details .secondary { margin: 10px 0; }
+form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+form label { font-size: 13px; }
+textarea { width: 100%; resize: vertical; padding: 12px; border: 1px solid var(--rule); border-radius: 0; background: #F5F8F2; color: var(--ink); font: 14px/1.45 'Segoe UI', system-ui, sans-serif; }
+form button { align-self: flex-start; }
+.demo-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.demo-buttons button { flex: 1 1 42%; font-size: 13px; }
+footer { margin-top: 24px; padding: 20px 0 28px; }
+@media (min-width: 600px) {
+  body { background: #D8E2D8; }
+  .companion { border-inline: 1px solid var(--rule); }
+}
+@media (max-width: 400px) {
+  .companion { padding: 0 20px; }
+  .meeting-heading h1 { font-size: 36px; }
+  .meeting-heading p { max-width: 290px; }
+  .card-controls #queue { flex-basis: 54%; }
+  footer { flex-direction: column; }
+}

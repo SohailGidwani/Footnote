@@ -1,8 +1,8 @@
 import type { Api, Card, Draft } from './api.ts';
 
 const cards: Card[] = [
-  { card_id: 'mock-bluebird', term_id: 'bluebird', term: 'BLUEBIRD', line1: 'v3 navigation stack rewrite', owner_name: 'Priya R.', owner_team: 'Autonomy', source: 'glossary', confidence: 1 },
-  { card_id: 'mock-fcs', term_id: 'fcs', term: 'FCS', line1: 'Fleet Control Service', owner_name: 'Marcus L.', owner_team: 'Platform', source: 'glossary', confidence: 1 },
+  { card_id: 'mock-bluebird', term_id: 'bluebird', term: 'BLUEBIRD', line1: 'v3 navigation stack rewrite', owner_name: 'Priya Raman', owner_team: 'Autonomy', source: 'glossary', confidence: 1 },
+  { card_id: 'mock-fcs', term_id: 'fcs', term: 'FCS', line1: 'Fleet Control Service', owner_name: 'Marcus Lindqvist', owner_team: 'Platform', source: 'glossary', confidence: 1 },
 ];
 
 export function createMockApi(): Api {
@@ -47,8 +47,8 @@ export function createMockApi(): Api {
         const terms = [...new Set(session.queue.filter(c => c.owner_name === owner).map(c => c.term))];
         const draft: Draft = {
           draft_id: `${id}-draft-${index}`, to_name: owner, to_email: 'display-only@halcyon.example',
-          subject: `To ${owner}: quick question about ${terms.join(', ')}`,
-          body: `Hi ${owner}, I'm getting up to speed on ${terms.join(' and ')}. Could you send me a two-line overview, or spare 15 minutes this week? Thanks!`, terms,
+          subject: `A question about ${terms.join(' and ')}`,
+          body: `Hi ${owner.split(' ')[0]},\n\nI'm getting up to speed on ${terms.join(' and ')}. Could you point me to the best place to start, or spare 15 minutes this week?\n\nThanks!`, terms,
         };
         drafts.set(draft.draft_id, draft);
         return draft;

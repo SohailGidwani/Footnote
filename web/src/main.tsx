@@ -20,6 +20,10 @@ function field(entry: DigestEntry, keys: string[]): string {
   return '';
 }
 
+function count(value: number, one: string, many: string): string {
+  return `${value} ${value === 1 ? one : many}`;
+}
+
 function DigestList({ title, entries, kind, empty }: { title: string; entries: DigestEntry[]; kind: 'terms' | 'people' | 'sent'; empty: string }) {
   const names = kind === 'terms' ? ['term', 'name'] : kind === 'people' ? ['name', 'owner_name', 'to_name'] : ['subject', 'to_name', 'owner_name'];
   const details = kind === 'terms' ? ['meaning', 'line1', 'definition'] : kind === 'people' ? ['team', 'owner_team'] : ['to_name', 'body'];
@@ -46,18 +50,21 @@ function App() {
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
   }, [revision]);
+  const firstTerm = digest?.terms_learned[0];
   return <main className="digest">
-    <header className="masthead"><a className="wordmark" href="./">footnote<span aria-hidden="true">*</span></a><span className="mode">{__MOCK_MODE__ ? 'Sample digest / demo data' : 'Your meeting digest'}</span></header>
-    <div className="digest-intro"><p className="context">HALCYON ROBOTICS <span aria-hidden="true">/</span> YOUR FIRST WEEK</p><h1>A little more<br /><em>familiar.</em></h1><p>The words make sense. The names become people.<br className="desktop-break" /> Your next conversation already has a starting point.</p></div>
-    <div className="digest-toolbar"><div><p className="section-kicker">TODAY / AT A GLANCE</p><h2>Your day, with context.</h2></div><button disabled={loading} onClick={() => setRevision(value => value + 1)}>{loading ? 'Refreshing…' : 'Refresh digest'}</button></div>
+    <header className="masthead"><a className="wordmark" href="./">footnote<span aria-hidden="true">*</span></a><div className="header-actions"><span className="mode">{__MOCK_MODE__ ? 'Sample digest' : 'Your digest'}</span><button disabled={loading} onClick={() => setRevision(value => value + 1)}>{loading ? 'Refreshing…' : 'Refresh'}</button></div></header>
+    <div className="digest-intro"><div><h1>What stayed with you.</h1><p>A record of the words you caught and the people who can help.</p></div>{digest && <div className="digest-meta"><span>Today</span><span>{count(digest.terms_learned.length, 'word', 'words')} · {count(digest.people_to_meet.length, 'person', 'people')} · {count(digest.sent.length, 'message', 'messages')}</span></div>}</div>
     {loading && !digest && <p className="secondary" role="status">Gathering your meeting notes…</p>}
-    {error && <div className="error" role="alert">{error} Use Refresh digest to try again.</div>}
+    {error && <div className="error" role="alert">{error} Use Refresh to try again.</div>}
     {digest && <div aria-busy={loading}>
-      <DigestList title="Terms learned today" entries={digest.terms_learned} kind="terms" empty="New words will land here after your first meeting. A little context goes a long way." />
-      <DigestList title="People to meet" entries={digest.people_to_meet} kind="people" empty="When a term has an owner, you'll find your person here." />
-      <DigestList title="Conversations started" entries={digest.sent} kind="sent" empty="No messages sent yet. Approve a follow-up on your phone when you're ready." />
+      {firstTerm && <div className="memory-strip"><span>From the meeting</span><strong>{field(firstTerm, ['term', 'name'])}</strong><p>{field(firstTerm, ['meaning', 'line1', 'definition'])}</p></div>}
+      <div className="digest-ledger">
+        <DigestList title="Words caught" entries={digest.terms_learned} kind="terms" empty="Words you meet during a session will appear here." />
+        <DigestList title="People to meet" entries={digest.people_to_meet} kind="people" empty="When a word has an owner, you can find them here." />
+      </div>
+      <DigestList title="Conversation started" entries={digest.sent} kind="sent" empty="No messages sent. Review a draft on your phone when you are ready." />
     </div>}
-    <aside className="quiet-note"><span aria-hidden="true">*</span><p>It gets quieter as you learn.<small>After three sightings, familiar terms step out of the way. Swipe down on G2 to let a term go sooner.</small></p></aside>
+    <aside className="quiet-note">Familiar terms fade from the glasses after three sightings. Swipe down on G2 to let a term go sooner.</aside>
     <footer>Less jargon. More belonging.<span>Footnote / LA Hacks 2026</span></footer>
   </main>;
 }
