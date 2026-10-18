@@ -182,5 +182,48 @@ Container build, deployment and live Beta installation remain untested.
 ## Changelog for Kartik's agent
 
 Append dated entries with task, files/branch, exact checks and results, sanitized
-log timings, failures, outstanding work and any contract changes. No work by
-Kartik's agent is recorded yet. Do not mark an unrun check as passed.
+log timings, failures, outstanding work and any contract changes. Do not mark an
+unrun check as passed.
+
+### 2026-10-17 — Live StepFun slow-path proof
+
+- Branch/files: `main`; documentation evidence appended to this file only. No API
+  contract or application code changed.
+- Started the local backend with the existing ignored `backend/.env`. Provider
+  warm-up confirmed the StepFun models endpoint was reachable.
+- Created a fresh session and sent `Did Marcus update the HAL-9 runbook?` through
+  `/listen_text`. The immediate response contained the glossary `RUNBOOK` card.
+- Polled the same session with empty text every two seconds. The fifth poll returned
+  `HAL-9`, owner `Marcus L.` / `Platform`, `source: "llm"`, confidence `0.6`, and
+  the cautious meaning `Internal code; details unconfirmed`.
+- Sanitized backend evidence: StepFun chat completion returned HTTP 200; slow-path
+  log recorded `llm_ms=9948`, `candidate_count=1`, `added_count=1`.
+- Result: task 1 passed using live StepFun inference. No email was sent and no
+  speech-to-text request was made. Real-audio timing and G2 slow-path latency remain
+  outstanding. No secrets, session IDs, tunnel URLs or inbox addresses were recorded.
+
+### 2026-10-17 — Local draft signature
+
+- Added `NEW_HIRE_NAME=Sohail` to the ignored local `backend/.env` without displaying
+  its contents. No tracked configuration or API code changed.
+- Started the backend with provider keys disabled for this check, created a fresh
+  session, queued the Bluebird card, and ended the meeting. The returned draft
+  was addressed to Priya Raman, included Bluebird, and ended with `Sohail`.
+- Result: task 2 passed for the template draft path. A live StepFun-written draft
+  with this signature has not been tested. No email was sent.
+
+### 2026-10-17 — Real recorded speech timing
+
+- Converted a user-supplied 7.19-second Ogg/Opus speech recording to raw 16 kHz,
+  signed 16-bit little-endian mono PCM. Sent it to the local backend as a
+  128,000-byte (4-second) chunk and a 102,192-byte remainder in one fresh session.
+- Both ElevenLabs speech-to-text requests returned HTTP 200. The first chunk
+  returned Bluebird and FCS glossary cards; the second returned Golden Path.
+- Backend logs: first chunk `stt_ms=572`, `match_ms=2.1`; second chunk
+  `stt_ms=323`, `match_ms=1.2`. Local request wall times were 608 ms and 340 ms.
+- Speech recognition included a short inaccurate phrase before “Blue Bird” in
+  the first transcript, but all three intended glossary cards were detected.
+  StepFun and email were disabled for this measurement, so no audio-triggered
+  `llm_ms` was expected. These are backend timings, not card-on-glasses latency.
+- Result: task 3 passed for this recording. G2 end-to-end latency remains
+  unmeasured. The recording and converted PCM were not added to Git.
