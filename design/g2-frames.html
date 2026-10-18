@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Footnote G2 states</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 48px; background: #102017; color: #eaf4e9; font: 16px/1.5 'Segoe UI', sans-serif; }
+  h1 { font-size: 30px; margin: 0 0 8px; }
+  .intro { color: #aec8b0; margin: 0 0 36px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(576px, 1fr)); gap: 32px; }
+  section { width: 576px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .18em; color: #bff2c3; margin: 0 0 10px; }
+  .frame { position: relative; width: 576px; height: 288px; background: #010704; color: #a9f5a8; font: 16px/1.5 Consolas, ui-monospace, monospace; }
+  .frame p { position: absolute; left: 16px; width: 544px; margin: 0; white-space: pre-wrap; }
+  .status { top: 12px; height: 40px; color: #6fba79; }
+  .term { top: 78px; height: 56px; color: #bef8b9; font-size: 20px; }
+  .detail { top: 144px; height: 128px; color: #9ee5a1; }
+</style>
+<h1>Footnote / G2 display states</h1>
+<p class="intro">Five 576 × 288 frames. The display uses plain green text at three brightness levels.</p>
+<div class="grid">
+  <section><h2>01 Listening</h2><div class="frame"><p class="status">FOOTNOTE / LISTENING / 0 SAVED</p><p class="term">Listening for terms</p><p class="detail">New words will appear here.
+Press to pause / Hold to end</p></div></section>
+  <section><h2>02 Term</h2><div class="frame"><p class="status">FOOTNOTE / LISTENING / 0 SAVED</p><p class="term">Bluebird</p><p class="detail">v3 navigation stack rewrite
+Owner: Priya Raman (Autonomy)
+Press: ask / Down: know / Up: next</p></div></section>
+  <section><h2>03 Queued</h2><div class="frame"><p class="status">FOOTNOTE / LISTENING / 1 SAVED</p><p class="term">Question saved</p><p class="detail">Queued for Priya Raman
+Hold to end meeting</p></div></section>
+  <section><h2>04 Empty / ready</h2><div class="frame"><p class="status">FOOTNOTE / READY / 0 SAVED</p><p class="term">Ready for context</p><p class="detail">Press to start your meeting.</p></div></section>
+  <section><h2>05 Error</h2><div class="frame"><p class="status">FOOTNOTE / PAUSED / 0 SAVED</p><p class="term">Connection issue</p><p class="detail">Cannot reach backend.
+Use phone controls or reconnect G2.</p></div></section>
+</div>
+</html>

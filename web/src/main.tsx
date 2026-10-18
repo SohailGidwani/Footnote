@@ -48,8 +48,8 @@ function App() {
   }, [revision]);
   return <main className="digest">
     <header className="masthead"><a className="wordmark" href="./">footnote<span aria-hidden="true">*</span></a><span className="mode">{__MOCK_MODE__ ? 'Sample digest / demo data' : 'Your meeting digest'}</span></header>
-    <div className="digest-intro"><p className="context">Halcyon Robotics / Your first week</p><h1>A little more<br />familiar.</h1><p>The words make sense. The names become people.<br className="desktop-break" /> Your next conversation already has a starting point.</p></div>
-    <div className="digest-toolbar"><h2>Your day, with context.</h2><button disabled={loading} onClick={() => setRevision(value => value + 1)}>{loading ? 'Refreshing…' : 'Refresh digest'}</button></div>
+    <div className="digest-intro"><p className="context">HALCYON ROBOTICS <span aria-hidden="true">/</span> YOUR FIRST WEEK</p><h1>A little more<br /><em>familiar.</em></h1><p>The words make sense. The names become people.<br className="desktop-break" /> Your next conversation already has a starting point.</p></div>
+    <div className="digest-toolbar"><div><p className="section-kicker">TODAY / AT A GLANCE</p><h2>Your day, with context.</h2></div><button disabled={loading} onClick={() => setRevision(value => value + 1)}>{loading ? 'Refreshing…' : 'Refresh digest'}</button></div>
     {loading && !digest && <p className="secondary" role="status">Gathering your meeting notes…</p>}
     {error && <div className="error" role="alert">{error} Use Refresh digest to try again.</div>}
     {digest && <div aria-busy={loading}>

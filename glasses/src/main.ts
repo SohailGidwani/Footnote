@@ -13,18 +13,19 @@ import './style.css';
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <main class="companion">
     <header class="masthead"><a class="wordmark" href="./">footnote<span aria-hidden="true">*</span></a><span id="mode" class="mode"></span></header>
-    <section class="intro"><p class="context">Halcyon Robotics</p><h1>A little context.<br>A quieter first week.</h1><p>Catch the unfamiliar. Find your person. Keep the conversation going.</p></section>
+    <section class="intro"><p class="context">HALCYON ROBOTICS <span aria-hidden="true">/</span> YOUR FIRST WEEK</p><h1>A little context.<br><em>A quieter first week.</em></h1><p>Catch the unfamiliar. Find your person. Keep the conversation going.</p><div class="intro-rule" aria-hidden="true"><span>01</span><span>LISTEN</span><span>02</span><span>LEARN</span><span>03</span><span>FOLLOW UP</span></div></section>
     <section aria-labelledby="meeting-title" class="meeting-panel">
+      <div class="section-kicker">01 / IN THE MOMENT</div>
       <div class="section-heading"><h2 id="meeting-title">Your meeting</h2><span id="meeting-status" role="status">Ready</span></div>
       <p id="device-status" class="secondary" role="status">Connecting to glasses… Phone controls are ready.</p>
       <div id="error" class="error" role="alert" hidden></div>
       <div class="meeting-controls"><button id="start" class="primary">Start meeting</button><button id="pause" hidden>Pause listening</button><button id="end" disabled>End meeting</button></div>
-      <div class="glasses-preview" aria-label="Glasses display preview"><div class="display-canvas"><p id="display-status"></p><p id="display-term"></p><p id="display-detail"></p></div></div>
+      <div class="glasses-preview" aria-label="Glasses display preview"><div class="preview-label"><span>G2 DISPLAY PREVIEW</span><span>576 × 288</span></div><div class="display-canvas"><p id="display-status"></p><p id="display-term"></p><p id="display-detail"></p></div></div>
       <div class="card-controls"><button id="queue" disabled>Ask the owner</button><button id="mute" disabled>I know this</button><button id="next" disabled>Next / last card</button></div>
       <p class="hint">On G2: press to ask, swipe down to mute, swipe up for the next card. Hold to end. Double press opens the system exit dialog.</p>
     </section>
-    <section aria-labelledby="queue-title"><div class="section-heading"><h2 id="queue-title">Questions to take with you</h2><span id="queue-count">0</span></div><ul id="questions" class="entries"></ul></section>
-    <section id="draft-section" aria-labelledby="draft-title" hidden><h2 id="draft-title">A conversation starts here.</h2><p class="secondary" id="delivery-note"></p><div id="drafts"></div></section>
+    <section class="question-panel" aria-labelledby="queue-title"><div class="section-kicker">02 / AFTER THE MEETING</div><div class="section-heading"><h2 id="queue-title">Questions to take with you</h2><span id="queue-count">0</span></div><ul id="questions" class="entries"></ul></section>
+    <section id="draft-section" class="draft-section" aria-labelledby="draft-title" hidden><div class="section-kicker">03 / FOLLOW UP</div><h2 id="draft-title">A conversation starts here.</h2><p class="secondary" id="delivery-note"></p><div id="drafts"></div></section>
     <details id="fallback"><summary>Try a phrase instead</summary><p class="secondary">Use typed input if the room is noisy or your glasses are disconnected.</p><form id="text-form"><label for="phrase">Meeting phrase</label><textarea id="phrase" rows="2" maxlength="2000">Bluebird is slipping because FCS is still on the old golden path.</textarea><button id="listen-text" type="submit" disabled>Find terms</button></form><p id="last-phrase" class="secondary"></p></details>
     <details id="demo-tools" hidden><summary>Simulator gestures</summary><div class="demo-buttons"><button data-gesture="click">Single press</button><button data-gesture="up">Swipe up</button><button data-gesture="down">Swipe down</button><button data-gesture="end">Long press</button><button data-gesture="exit">Double press</button></div><p id="exit-note" role="status"></p></details>
     <footer>Less jargon. More belonging.<span>Footnote / LA Hacks 2026</span></footer>

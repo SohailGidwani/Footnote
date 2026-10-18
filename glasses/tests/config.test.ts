@@ -31,7 +31,7 @@ test('the root layout has one event capture and empty cards use single spaces', 
   assert.equal(containers.filter(container => container.isEventCapture === 1).length, 1);
   assert.deepEqual(containers.map(container => [container.containerID, container.containerName, container.textColor]), [[1, 'status', 2], [2, 'term', 4], [3, 'detail', 3]]);
   const meeting = new Meeting(createMockApi(), async () => {}, () => {});
-  assert.deepEqual(screenFor(meeting.state).slice(1), [' ', ' ']);
+  assert.deepEqual(screenFor(meeting.state).slice(1), ['Ready for context', 'Press to start your meeting.']);
   meeting.dispose();
 });
 

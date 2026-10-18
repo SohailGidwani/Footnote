@@ -341,3 +341,45 @@ unrun check as passed.
 - Result: live typed-text backend inference passed. No email was sent. The real app
   DB still contains zero Ridgeline terms, so Sohail's next device test remains fresh.
   Physical G2 output and real-audio Ridgeline inference remain untested after this fix.
+
+### 2026-10-17 — Agent prep and local UI presentation
+
+- Pulled `origin/main` through `37a2b42` before this work. Agent prep was committed
+  locally on `main` as `32c333f`; presentation work is on `kartik/paper-ui`.
+- The agent now answers `Prep me for my 2pm platform sync` with five glossary
+  entries from `data/company_pack.json`: 2pm platform sync (Ben Carter), FCS
+  (Marcus Lindqvist), golden path (Tomas Reyes), Bluebird (Priya Raman), and
+  DRI (Ben Carter). Each reply includes the pack meaning and team.
+- Real ASI:One mailbox chat against the running local agent and backend:
+  https://asi1.ai/shared-chat/5242abb1-e546-46d2-ad8c-8a2b2600a1a8
+  It contains the prep request and both digest questions, in addition to the
+  original Bluebird lookup. `What did I learn today?` returned HAL-9, runbook,
+  FCS, and Bluebird; `Who should I meet?` returned Priya Raman, Marcus Lindqvist,
+  and Dana Okafor. These matched the local `GET /digest` contents at the check.
+- Public agent submission links: Agentverse profile
+  https://agentverse.ai/agents/details/agent1qg8amcyx59uvzkpj3zyy260cd790ewlf0nuga3qydevs25489lv3vgvx4gq/profile
+  and ASI:One profile
+  https://asi1.ai/ai/agent1qg8amcyx59uvzkpj3zyy260cd790ewlf0nuga3qydevs25489lv3vgvx4gq
+- Agent lookups read the pack directly; digest questions call only `GET /digest`.
+  No glossary query calls `/listen_text`. No agent draft sending or backend API
+  addition was implemented, so the frozen API contract is unchanged.
+- The G2 renderer has explicit listening, term, queued, ready/empty, and error
+  states within 576 × 288. The phone companion and digest now share a refined
+  dark green presentation. SDK bridge, gestures, audio, API calls, and meeting
+  transitions remain in their existing modules. `BACKEND_URL` stays localhost.
+- Local verification: six agent tests; 21 client tests; TypeScript checks for
+  both clients; production builds for glasses and web. These do not replace a
+  physical G2 test. Screenshots are in `design/evidence/` (`phone-before.png`,
+  `phone-after.png`, `phone-card-after.png`, `phone-queued-after.png`,
+  `digest-before.png`, `digest-after.png`). The G2 layout source is in
+  `design/g2-frames.html`.
+- Editable Paper file: https://app.paper.design/file/01M56GD0RYAQWQJM4X2MFXNWRR/p-1-0
+  It contains five 576 × 288 artboards named Listening, Term, Queued, Empty
+  and ready, and Error. Reviewed exports are `paper-listening.jpg`,
+  `paper-term.jpg`, `paper-queued.jpg`, `paper-ready.jpg`, and
+  `paper-error.jpg` in `design/evidence/`.
+- Local client settings are `MOCK_MODE=false` and
+  `BACKEND_URL=http://localhost:8000` in ignored `.env.local` files for both
+  clients. The optional StepFun intent router was deferred; the current
+  keyword router handled all verified live questions. No deployment was
+  performed. Sohail continues Ridgeline/“Line” and TLS work.
