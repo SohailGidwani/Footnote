@@ -98,41 +98,47 @@ Never put tunnel URLs, LAN IPs, inbox addresses or keys in tracked files/log evi
    Append sanitized request/result evidence, successful provider inference request
    and backend slow-path log lines with `llm_ms`. A warm-up `/models` response,
    template draft or unit test alone does not prove the model fired live.
-2. **Deploy backend to public HTTPS.** Use `backend/Dockerfile`, building from the
-   repo root: `docker build -f backend/Dockerfile -t footnote-backend .`.
-   Set the four required backend variables as host secrets. Verify deployed
-   `/health` and an `OPTIONS /listen` preflight with origin/method/content-type
-   headers; expect 200 and 204 respectively with CORS headers. Post the deployed
-   URL in our private chat, never in this repo. Record deployment/check outcomes
-   here without exposing the URL or secrets. Container build/deploy is untested.
-3. **Set `NEW_HIRE_NAME=Sohail`** in the ignored backend env and deployment env;
+2. **Set `NEW_HIRE_NAME=Sohail`** in local ignored `backend/.env` only;
    restart as needed and verify the intended draft signature. This is untested.
-4. **Measure real-audio backend timings.** POST a real speech recording as raw
+3. **Measure real-audio backend timings.** POST a real speech recording as raw
    16 kHz, signed 16-bit little-endian mono PCM to `/listen?session_id=...`.
    Normal chunks are 128,000 bytes (4 seconds). Record actual `stt_ms`, `match_ms`
    and `llm_ms` log lines and the returned cards; distinguish background inference
    from the immediate response. Target card-on-glasses time is about 4 seconds.
    Backend timings alone do not prove that target; G2 latency remains untested
    until Sohail measures it. Do not invent measurements from the chunk duration.
-5. **Stretch only after 1-4:** implement the Fetch.ai agent in `/agent` per PDF K7.
+4. **Stretch only after 1-3:** implement the Fetch.ai agent in `/agent` per PDF K7.
+   Call the LOCAL backend at `http://localhost:8000`, configured through a
+   `BACKEND_URL` env var so it can point at the deployed URL later.
    Registration, ASI:One chat and deployment are all untested.
 
 ## Rules while Sohail sleeps
 
 - You own `/backend`, `/data`, `/agent`. Keep changes there by default.
-- Fix `/glasses` or `/web` only for a client bug blocking tasks 1-2. Use branch
+- Fix `/glasses` or `/web` only for a client bug blocking task 1. Use branch
   `kartik/client-fix`, keep the diff minimal, and list EVERY changed file and
   behavior in the changelog below for Sohail to review. Do not merge it silently.
 - Keep API paths/shapes frozen in `CLAUDE.md`; document any change at this file's top.
 - Never commit real env files, keys, tunnel/deployment URLs, inbox addresses or LAN IPs.
 - Record failed checks and provider errors honestly. Preserve drafts on send errors.
 
+## Deferred: deployment (Sunday morning)
+
+Deployment is deliberately the LAST hackathon step, done together Sunday morning,
+not tonight. Build `backend/Dockerfile` from the repo root:
+`docker build -f backend/Dockerfile -t footnote-backend .`.
+Set `ELEVENLABS_API_KEY`, `STEPFUN_API_KEY`, `RESEND_API_KEY`, `DEMO_INBOX` and
+`NEW_HIRE_NAME` as host secrets. Verify `/health` (200) and `OPTIONS /listen` (204)
+with CORS origin/method/content-type headers. Share the URL privately, not in Git.
+The final live Beta `.ehpk` bakes `BACKEND_URL` in at build time: deployment must
+finish BEFORE the final Beta build, targeted for **10:30 AM Sunday**.
+Container build, deployment and live Beta installation remain untested.
+
 ## Sohail after the nap
 
 - Test queue -> end -> draft -> approve -> email, inbox/spam, and remaining gestures
   on real G2, including fade-out. These device checks are still untested.
-- With the deployed URL, build a live `glasses/footnote.ehpk`, upload/install Beta
-  and retest. This distribution path remains untested.
+- Live Beta builds wait for deployment on Sunday morning; until then, test on the G2 through the tunnel.
 - Update README "Run on G2" using only observed results, then demo video and Devpost.
 
 ## Changelog for Kartik's agent
