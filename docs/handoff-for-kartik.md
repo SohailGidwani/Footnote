@@ -149,7 +149,8 @@ Record the Agentverse profile URL and a public ASI:One shared chat URL in the
 changelog: both are required for Fetch submission and are fine to share.
 The agent answers only while running; record where it runs in the changelog.
 The implementation, local tests, mailbox connection and Bluebird ASI:One reply
-are complete. Profile details and the two submission URLs remain to verify.
+are complete. The shared chat URL is verified; Agentverse profile details and
+its profile URL remain to verify.
 
 ## Rules while Sohail sleeps
 
@@ -264,5 +265,17 @@ unrun check as passed.
 - Agentverse mailbox registration was confirmed in the local agent log. The
   exact live chat reply is user-reported; the local handler does not currently
   log incoming chat text. The agent is running on this Windows checkout.
-- Agentverse profile details, profile URL and public shared chat URL are still
-  pending; do not claim those as submitted until they are recorded here.
+- The public ASI:One shared chat was checked in a signed-out browser and shows
+  the Bluebird question and the exact reply above:
+  https://asi1.ai/shared-chat/5242abb1-e546-46d2-ad8c-8a2b2600a1a8
+- Public ASI:One agent page:
+  https://asi1.ai/ai/agent1qg8amcyx59uvzkpj3zyy260cd790ewlf0nuga3qydevs25489lv3vgvx4gq
+- The listing showed the correct README description and required badges, but
+  its display name was still `footnote_new_hire` and its categories appeared
+  unrelated. Agentverse profile details and the Agentverse profile URL still
+  need account-side review before submission.
+- Moved local setup instructions from the public `agent/README.md` listing to
+  `agent/SETUP.md` so the listing focuses on user-facing capabilities. Restarted
+  the agent with the same address; the public ASI:One listing still showed the
+  old README after refresh. Save the shorter README through Agentverse's
+  Overview editor, then recheck the public listing.
