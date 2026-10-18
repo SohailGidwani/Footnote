@@ -227,3 +227,21 @@ unrun check as passed.
   `llm_ms` was expected. These are backend timings, not card-on-glasses latency.
 - Result: task 3 passed for this recording. G2 end-to-end latency remains
   unmeasured. The recording and converted PCM were not added to Git.
+
+### 2026-10-17 — Local Fetch.ai agent implementation
+
+- Added `/agent` with a local uAgents mailbox agent, Agent Chat Protocol
+  handling, a read-only glossary lookup, and `/digest` answers. Its listing
+  README includes the two required hackathon badges, keywords and examples.
+- Generated a stable private seed in ignored `agent/.env`; it was not added to
+  Git. `BACKEND_URL` remains `http://localhost:8000` for local development.
+- Installed `uagents==0.26.1` with Python 3.11 and ran five local tests: all
+  passed, including a chat message that received an acknowledgement and a
+  Bluebird reply naming Priya Raman and Autonomy. The agent booted, printed an
+  Inspector URL, and published `AgentChatProtocol` successfully.
+- Agentverse reported `Agent mailbox not found` and a 401 while retrieving
+  messages. The account-side **Connect > Mailbox** action is still required in
+  a normal browser on this computer. The Codex in-app browser could not see
+  the local agent endpoint. ASI:One chat, Agentverse profile URL and shared
+  chat URL remain unverified/unrecorded. The agent ran locally on this Windows
+  checkout; it has not been deployed.
