@@ -33,7 +33,7 @@ Draft = {draft_id, to_name, to_email, subject, body, terms[]}
 A term is never returned as a card if muted or seen >= 3 times.
 The backend never returns more than 2 cards per /listen call.
 The glossary fast path returns immediately. StepFun (slow path) runs in the
-background, capped at 12 s; its cards are returned with the first /listen
+background, capped at 25 s; its cards are returned with the first /listen
 response after the explanation is ready. Drafts start when a question is queued;
 /session/{session_id}/end returns the saved draft or its template promptly.
 

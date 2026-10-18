@@ -34,3 +34,13 @@ test('the root layout has one event capture and empty cards use single spaces', 
   assert.deepEqual(screenFor(meeting.state).slice(1), [' ', ' ']);
   meeting.dispose();
 });
+
+test('inferred cards suggest a contact instead of claiming confirmed ownership', () => {
+  const meeting = new Meeting(createMockApi(), async () => {}, () => {});
+  meeting.state.card = { card_id: 'c', term_id: 't', term: 'NEW PROJECT', line1: 'Meaning inferred from the meeting',
+    owner_name: 'Marcus L.', owner_team: 'Platform', source: 'llm', confidence: 0.6 };
+  assert.ok(screenFor(meeting.state)[2].includes('Ask: Marcus L. (Platform)'));
+  meeting.state.card.source = 'glossary';
+  assert.ok(screenFor(meeting.state)[2].includes('Owner: Marcus L. (Platform)'));
+  meeting.dispose();
+});

@@ -43,6 +43,7 @@ def tokens(text: str) -> list[str]:
 class Matcher:
     def __init__(self, terms: list[dict]):
         self.exact: dict[tuple[str, ...], str] = {}
+        self.compact: dict[str, str] = {}
         self.fuzzy: dict[int, list[tuple[str, str]]] = {}  # n tokens -> [(phrase, term_id)]
         self.lengths: set[int] = set()
         self.known_words: set[str] = set()
@@ -53,7 +54,12 @@ class Matcher:
                     continue
                 self.exact.setdefault(tuple(toks), t["id"])
                 self.lengths.add(len(toks))
+                compact = "".join(toks)
+                if len(compact) >= FUZZY_MIN_CHARS:
+                    self.compact.setdefault(compact, t["id"])
+                    self.lengths.update(range(1, len(toks) + 2))
                 self.known_words.update(toks)
+                self.known_words.add(compact)
                 joined = " ".join(toks)
                 if len(joined) >= FUZZY_MIN_CHARS:
                     self.fuzzy.setdefault(len(toks), []).append((joined, t["id"]))
@@ -67,7 +73,7 @@ class Matcher:
                 if i + n > len(toks):
                     continue
                 window = toks[i:i + n]
-                term_id = self.exact.get(tuple(window))
+                term_id = self.exact.get(tuple(window)) or self.compact.get("".join(window))
                 if term_id:
                     hits.setdefault(term_id, i)
                     continue

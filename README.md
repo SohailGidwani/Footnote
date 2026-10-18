@@ -181,8 +181,9 @@ to keep latency bounded. Backgrounding pauses capture; resume explicitly
 when returning. No full transcript is stored by the client.
 
 Glossary cards return immediately. StepFun explanations run in the background
-for up to 12 seconds and arrive on the first listen response after inference
+for up to 25 seconds and arrive on the first listen response after inference
 finishes, which may be several calls later. The phone timeout stays at 6 seconds.
+Inferred cards show a suggested contact with "Ask"; glossary cards show the known owner.
 
 Keep the phone page open through draft approval. Session/queue authority is
 on the backend, but the frozen API has no session-recovery endpoint, so a

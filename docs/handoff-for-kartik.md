@@ -1,7 +1,12 @@
 # Footnote handoff for Kartik
 
-API contract changes: none. Read `CLAUDE.md` and `backend/HANDOFF.md` first.
+API timing update (Sohail): background StepFun explanations are capped at 25 s
+instead of 12 s; measured live Step-5 Preview calls took 15.7-16.5 s. Phone requests
+still time out after 6 s. Paths and response shapes are unchanged. Inferred cards
+suggest a person to ask; they do not confirm ownership. Read `CLAUDE.md` and
+`backend/HANDOFF.md` first.
 Record any proposed contract change at the top of this file before changing it.
+The status below is the initial handoff snapshot; current changes are in the changelog.
 
 ## Status and evidence
 
@@ -92,7 +97,7 @@ Never put tunnel URLs, LAN IPs, inbox addresses or keys in tracked files/log evi
    session and POST `/listen_text` with that `session_id` and
    `Did Marcus update the HAL-9 runbook?`. Continue listen calls in the SAME session
    until inference finishes: the card arrives on the first listen AFTER completion,
-   not necessarily the next call. The background cap is 12 seconds; keep the phone
+   not necessarily the next call. The background cap is 25 seconds; keep the phone
    request timeout at 6 seconds. An empty-text `/listen_text` can collect ready cards.
    Confirm the HAL-9 card has `source: "llm"`; a glossary runbook card is not proof.
    Append sanitized request/result evidence, successful provider inference request
@@ -296,3 +301,43 @@ unrun check as passed.
   be a listing sync delay; no change to the agent code was made. Recheck that
   page before submission. The user says the handle was changed, but the public
   pages inspected here did not expose its full value.
+
+### 2026-10-17 — Sohail's generalized speech and StepFun fixes
+
+- Sohail authorized backend/client fixes during G2 testing. Replaced the temporary
+  HAL-9-specific substitution with general acronym + spoken-number normalization.
+  Glossary matching also tolerates split/joined words without individual aliases;
+  cached codes retain existing fuzzy matching for spoken variants. Unknown names
+  can now be candidates at the start of a sentence. Raw transcripts stay unchanged.
+- RUNBOOK already matched "run book"; its missing card was the intended fade-out
+  after three sightings, confirmed by a read-only local database check.
+- Live diagnostic: Step-5 Preview returned a Ridgeline meaning after 16.5 s but no
+  owner. A shorter diagnostic prompt returned a meaning and suggested contact after
+  15.7 s. A 512-token budget cut off the answer. Kept Step-5 Preview, increased only
+  the background explanation cap to 25 s, and clarified suggested-contact selection.
+  Phone timeout remains 6 s. Glasses label inferred contacts "Ask", not "Owner".
+- Verification: 64 backend tests and 19 client tests pass; both client builds pass.
+  Existing Starlette/httpx deprecation warning remains. No new dependencies.
+- The full live API check with the updated code is NOT verified: an isolated
+  temporary-database run failed with a TLS issuer error before StepFun inference.
+  On the hotspot, direct DNS returned real StepFun servers while macOS application
+  lookups intermittently returned WebFilter addresses. No certificate bypass or
+  saved DNS change was made. An administrator cache reload still needs Sohail.
+- Normal backend restarted on port 8000. No real meeting data was reset, no email
+  was sent by these diagnostics, and no live Ridgeline card was cached in the app DB.
+  These changes are local and uncommitted; G2 behavior after these edits needs testing.
+
+### 2026-10-17 — Live Ridgeline API check passed after DNS cache reload
+
+- Sohail ran the administrator DNS cache reload. Subsequent macOS lookups returned
+  real StepFun servers and TLS verification succeeded. No saved DNS change was needed.
+- Repeated the real `/session/start` -> `/listen_text` -> empty-text polls -> end
+  flow against the current backend code with a temporary, isolated database.
+  Phrase: `The Ridgeline migration moves our telemetry onto the new cluster.`
+- Step-5 Preview chat completion returned HTTP 200. Backend evidence:
+  `llm_ms=16495 candidate_count=1 added_count=1`. The next poll returned RIDGELINE
+  at 18.06 s, meaning `Migration moving telemetry to a new cluster`, source `llm`,
+  confidence `0.6`, suggested contact `Dana O.` / `Reliability` (not confirmed owner).
+- Result: live typed-text backend inference passed. No email was sent. The real app
+  DB still contains zero Ridgeline terms, so Sohail's next device test remains fresh.
+  Physical G2 output and real-audio Ridgeline inference remain untested after this fix.

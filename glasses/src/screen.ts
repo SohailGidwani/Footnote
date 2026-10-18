@@ -16,5 +16,5 @@ export function screenFor(state: MeetingState): string[] {
   if (state.notice) return [status, state.notice, ' '];
   if (!state.card) return [status, ' ', ' '];
   const card = state.card;
-  return [status, card.term, `${card.line1}\nOwner: ${card.owner_name} (${card.owner_team})\npress: ask | swipe down: known`];
+  return [status, card.term, `${card.line1}\n${card.source === 'llm' ? 'Ask' : 'Owner'}: ${card.owner_name} (${card.owner_team})\npress: ask | swipe down: known`];
 }

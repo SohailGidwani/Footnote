@@ -3,7 +3,8 @@
 The API paths and response shapes in `CLAUDE.md` are unchanged. The timing rule changed:
 glossary cards still return in the current `/listen`, while an uncatalogued StepFun card
 returns with the first `/listen` **after** inference finishes. The StepFun background cap is
-12 seconds instead of 2.5 seconds. Do not wait for that card in the phone request; the existing
+25 seconds (raised from 12 after live Step-5 Preview calls took 15.7-16.5 seconds).
+Do not wait for that card in the phone request; the existing
 6-second phone timeout can stay as it is.
 
 ## Changes in this push

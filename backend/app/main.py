@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 log = logging.getLogger("footnote")
 
 MAX_CARDS_PER_LISTEN = 2
-SLOW_PATH_CAP_S = 12.0  # background work; never holds up /listen
+SLOW_PATH_CAP_S = 25.0  # background work; never holds up /listen
 DRAFT_CAP_S = 12.0  # starts when a card is queued, not when the meeting ends
 STT_CAP_S = 4.5
 SEND_CAP_S = 4.5
@@ -106,7 +106,7 @@ def collect_cards(st: State, s: Session, new_ids: list[str]) -> list[dict]:
 
 async def slow_path(st: State, s: Session, transcript: str) -> None:
     """StepFun explains unknown capitalized words / acronyms. Never blocks a response:
-    capped at 12 s, and its cards ride along with the next /listen after completion."""
+    capped at 25 s, and its cards ride along with the next /listen after completion."""
     if not config.env("STEPFUN_API_KEY"):
         return
     known = st.matcher().known_words
@@ -120,9 +120,9 @@ async def slow_path(st: State, s: Session, transcript: str) -> None:
         log.warning("slow path session=%s llm_ms>%d (capped)", s.id, SLOW_PATH_CAP_S * 1000)
         items = []
     except Exception as e:  # StepFun down or bad key: the fast path keeps working
-        log.warning("slow path session=%s failed: %s", s.id, type(e).__name__)
+        log.warning("slow path session=%s failed: %s; cause=%s", s.id, type(e).__name__, e.__cause__)
         items = []
-    by_lower = {str(item.get("term", "")).strip().lower(): item for item in items}
+    by_name = {"".join(tokens(str(item.get("term", "")))): item for item in items}
     words = {word.lower() for word in tokens(transcript)}
     named_people = [p["id"] for p in st.store.people_text() if p["name"].split()[0].lower() in words]
     hinted_owner = named_people[0] if len(named_people) == 1 else None
@@ -130,7 +130,7 @@ async def slow_path(st: State, s: Session, transcript: str) -> None:
     people_ids = {p["id"] for p in st.store.people_text()}
     added = []
     for word in cands:
-        item = by_lower.get(word.lower(), {})
+        item = by_name.get("".join(tokens(word)), {})
         contextual_code = bool(CODE_TERM.fullmatch(word) and hinted_owner and work_context)
         raw_confidence = item.get("confidence")
         raw_meaning = item.get("meaning")
@@ -141,6 +141,8 @@ async def slow_path(st: State, s: Session, transcript: str) -> None:
             owner = hinted_owner if contextual_code else None
         if not (isinstance(raw_meaning, str) and clip(raw_meaning, 44)):
             raw_meaning = "Internal code; details unconfirmed" if CODE_TERM.fullmatch(word) else ""
+        if not CODE_TERM.fullmatch(word) and clip(raw_meaning, 44).lower() == "internal code; details unconfirmed":
+            continue
         confidence = raw_confidence if isinstance(raw_confidence, (int, float)) \
             and not isinstance(raw_confidence, bool) and math.isfinite(raw_confidence) else None
         if confidence is None and raw_confidence == "low":
@@ -152,7 +154,8 @@ async def slow_path(st: State, s: Session, transcript: str) -> None:
         confidence = min(confidence, 0.7)  # every uncatalogued meaning is an inference
         if s.ending or s.ended:
             return
-        tid = st.store.add_llm_term(word, clip(raw_meaning, 44), owner, confidence)
+        name = str(item.get("term") or word).strip()
+        tid = st.store.add_llm_term(name, clip(raw_meaning, 44), owner, confidence)
         if tid not in s.pending:
             s.pending.append(tid)
         added.append(word)
@@ -164,11 +167,12 @@ async def respond(st: State, s: Session, transcript: str, stt_ms: int = 0) -> di
     if s.ended or s.ending:
         raise HTTPException(409, "Session already ended")
     t0 = time.perf_counter()
-    ids = st.matcher().find(transcript) if transcript else []
+    matching_text = llm.normalize_spoken_codes(transcript)
+    ids = st.matcher().find(matching_text) if matching_text else []
     match_ms = (time.perf_counter() - t0) * 1000
     cards = collect_cards(st, s, ids)
     if transcript:
-        task = asyncio.create_task(slow_path(st, s, transcript))
+        task = asyncio.create_task(slow_path(st, s, matching_text))
         s.tasks.add(task)
         task.add_done_callback(s.tasks.discard)
     log.info("listen session=%s stt_ms=%d match_ms=%.1f cards=%s", s.id, stt_ms, match_ms,

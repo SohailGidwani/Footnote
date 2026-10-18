@@ -206,6 +206,106 @@ def test_hal9_contextual_fallback_survives_stepfun_timeout(client, session, monk
     assert [card["term"] for card in say(client, session, "ok")["cards"]] == ["HAL-9"]
 
 
+@pytest.mark.parametrize(("spoken", "term"), [
+    ("HAL nine", "HAL-9"), ("RDX four", "RDX-4"), ("A B C two", "ABC-2"),
+])
+@pytest.mark.parametrize("audio", [False, True])
+def test_spoken_codes_work_before_the_term_is_cached(client, session, monkeypatch, spoken, term, audio):
+    monkeypatch.setenv("STEPFUN_API_KEY", "fake")
+    phrase = f"Did Marcus update the {spoken} runbook?"
+
+    async def no_explanation(*args):
+        return []
+
+    async def transcribe(pcm):
+        return phrase
+
+    monkeypatch.setattr(llm, "explain", no_explanation)
+    monkeypatch.setattr(stt, "transcribe", transcribe)
+    if audio:
+        response = client.post(f"/listen?session_id={session}", content=b"\x01\x00" * 1_600)
+        assert response.status_code == 200
+        first = response.json()
+    else:
+        first = say(client, session, phrase)
+    assert first["transcript"] == phrase
+    assert [card["term"] for card in first["cards"]] == ["RUNBOOK"]
+
+    async def finish_slow_path():
+        await asyncio.gather(*client.app.state.footnote.session(session).tasks)
+
+    client.portal.call(finish_slow_path)
+    cards = say(client, session, "")["cards"]
+    assert [(card["term"], card["line1"], card["owner_name"]) for card in cards] == [
+        (term, "Internal code; details unconfirmed", "Marcus L.")]
+
+
+@pytest.mark.parametrize("spoken", ["hall nine", "hal 9"])
+def test_known_code_homophones_match_the_learned_term(client, session, spoken):
+    client.app.state.footnote.store.add_llm_term("HAL-9", "Internal code; details unconfirmed", "p_marcus", 0.6)
+    assert [card["term"] for card in say(client, session, f"Did Marcus update the {spoken} runbook?")["cards"]] == [
+        "HAL-9", "RUNBOOK"]
+
+
+@pytest.mark.parametrize(("text", "expected"), [
+    ("HAL nine", "HAL-9"),
+    ("RDX four", "RDX-4"),
+    ("a b c two", "ABC-2"),
+    ("QRS 12", "QRS-12"),
+    ("the two teams", "the two teams"),
+    ("THE ONE issue", "THE ONE issue"),
+    ("room nine", "room nine"),
+])
+def test_spoken_code_normalization_preserves_ordinary_words(text, expected):
+    assert llm.normalize_spoken_codes(text) == expected
+
+
+@pytest.mark.parametrize(("phrase", "expected"), [
+    ("Ridgeline migration moves telemetry to a new cluster.", ["Ridgeline"]),
+    ("Starling is our new deployment project.", ["Starling"]),
+    ("Did Marcus update the HAL-9 runbook?", ["HAL-9"]),
+    ("Hello and thank you.", []),
+])
+def test_unknown_terms_can_start_a_sentence(phrase, expected):
+    assert llm.find_candidates(phrase, {"runbook"}, {"marcus"}) == expected
+
+
+@pytest.mark.parametrize(("phrase", "expected"), [
+    ("The Ridge Line migration moves telemetry.", ["Ridge Line"]),
+    ("The Cedar Point rollout is ready.", ["Cedar Point"]),
+    ("Did Marcus update the HAL-9 runbook?", ["HAL-9"]),
+])
+def test_candidate_names_keep_adjacent_capitalized_words_together(phrase, expected):
+    assert llm.find_candidates(phrase, {"runbook"}, {"marcus"}) == expected
+
+
+def test_split_name_accepts_a_model_canonical_name(client, session, monkeypatch):
+    monkeypatch.setenv("STEPFUN_API_KEY", "fake")
+
+    async def explain(system, transcript, candidates):
+        return [{"term": "Cedarpoint", "is_company_term": True,
+                 "meaning": "Migration of telemetry to a new cluster", "owner_id": "p_marcus", "confidence": 0.6}]
+
+    monkeypatch.setattr(llm, "explain", explain)
+    state = client.app.state.footnote
+    asyncio.run(slow_path(state, state.session(session), "The Cedar Point migration moves telemetry to a new cluster."))
+    assert [c["term"] for c in say(client, session, "")["cards"]] == ["CEDARPOINT"]
+
+
+@pytest.mark.parametrize("term", ["Line", "Telemetry"])
+def test_plain_word_fragments_do_not_get_generic_code_cards(client, session, monkeypatch, term):
+    monkeypatch.setenv("STEPFUN_API_KEY", "fake")
+
+    async def explain(*args):
+        return [{"term": term, "is_company_term": True,
+                 "meaning": "Internal code; details unconfirmed", "owner_id": "p_marcus", "confidence": 0.6}]
+
+    monkeypatch.setattr(llm, "explain", explain)
+    state = client.app.state.footnote
+    asyncio.run(slow_path(state, state.session(session), f"{term} moves to the new cluster."))
+    assert say(client, session, "")["cards"] == []
+
+
 def test_hal9_salvages_malformed_fields_with_valid_model_owner(client, session, monkeypatch):
     monkeypatch.setenv("STEPFUN_API_KEY", "fake")
 

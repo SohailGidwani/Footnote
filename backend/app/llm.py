@@ -8,6 +8,7 @@ import openai
 from openai import AsyncOpenAI
 
 from .config import env
+from .matcher import tokens
 
 log = logging.getLogger("footnote.llm")
 MODEL = "step-5-preview"
@@ -24,7 +25,7 @@ def client() -> AsyncOpenAI:
         if not key:
             raise RuntimeError("STEPFUN_API_KEY is not set")
         _client = AsyncOpenAI(base_url=env("STEPFUN_BASE_URL", "https://api.stepfun.ai/v1"),
-                              api_key=key, timeout=12.0, max_retries=0)
+                              api_key=key, timeout=25.0, max_retries=0)
     return _client
 
 
@@ -96,27 +97,59 @@ august september october november december
 _WORD = re.compile(r"^[A-Za-z0-9][A-Za-z0-9-]*$")
 
 
+def normalize_spoken_codes(text: str) -> str:
+    """Join an acronym or spelled-out letters with a spoken number, without guessing homophones."""
+    def replace(match: re.Match) -> str:
+        prefix = re.sub(r"[^A-Za-z]", "", match[1])
+        number = tokens(match[2])
+        if prefix.lower() in _STOP or len(number) != 1 or not number[0].isdigit():
+            return match[0]
+        return f"{prefix.upper()}-{number[0]}"
+
+    return re.sub(r"\b([A-Z]{2,5}|[A-Za-z](?:[.\s]+[A-Za-z]){1,4}\.?)[\s-]+([A-Za-z0-9]+)\b",
+                  replace, text)
+
+
 def find_candidates(transcript: str, known_words: set[str], people_words: set[str], limit: int = 5) -> list[str]:
-    """Capitalized words and 2-5 letter acronyms that the glossary does not know."""
+    """Keep capitalized names together; codes and acronyms remain standalone."""
     out: list[str] = []
-    sentence_start = True
+    phrase: list[str] = []
+    seen: set[str] = set()
+
+    def flush() -> None:
+        if phrase:
+            name = " ".join(phrase)
+            key = "".join(tokens(name))
+            if key not in known_words and key not in seen:
+                out.append(name)
+                seen.add(key)
+            phrase.clear()
+
     for raw in transcript.split():
         word = raw.strip(".,;:!?\"'()[]")
-        ends_sentence = raw.endswith((".", "?", "!"))
-        was_start, sentence_start = sentence_start, ends_sentence
         if not word or not _WORD.match(word) or word[0].isdigit():
+            flush()
             continue
         low = word.lower()
-        if low in known_words or low in people_words or low in _STOP or word in out:
+        if low in known_words or low in people_words or low in _STOP:
+            flush()
             continue
         acronym = bool(re.fullmatch(r"[A-Z]{2,5}[0-9]*", word))
         proper = word[0].isupper() and len(word) >= 3
-        coded = proper and any(ch.isdigit() or ch == "-" for ch in word)
-        if acronym or coded or (proper and not was_start):
-            out.append(word)
+        if acronym or (proper and any(ch.isdigit() or ch == "-" for ch in word)):
+            flush()
+            phrase.append(word)
+            flush()
+        elif proper:
+            phrase.append(word)
+        else:
+            flush()
+        if raw.endswith((".", ",", ";", ":", "?", "!")):
+            flush()
         if len(out) >= limit:
             break
-    return out
+    flush()
+    return out[:limit]
 
 
 # ---------------------------------------------------------------- explanations
@@ -146,13 +179,19 @@ async def explain(system: str, transcript: str, candidates: list[str]) -> list[d
     user = (
         f'Transcript of what was just said in a meeting: "{transcript}"\n'
         f"Candidate words: {', '.join(candidates)}\n"
-        "Treat an unfamiliar work code such as HAL-9 as a likely internal term if colleagues discuss "
-        "its runbook, status, or work. It need not appear in the company pack. Ordinary names of "
+        "Treat unfamiliar work codes, projects, and migration names as likely internal terms when "
+        "colleagues discuss their runbook, status, or purpose. They need not appear in the company pack. Ordinary names of "
         "people, places and common words are not company terms. "
+        "Keep full multiword names together; do not turn an isolated fragment of a longer name "
+        "into a separate term. Only letter-and-number codes may use a generic unconfirmed meaning; "
+        "otherwise require a contextual meaning or set is_company_term=false. "
         "For a company term, write a cautious meaning in 44 characters or fewer using only the "
         "transcript and pack; if the precise meaning is unknown, say 'Internal code; details unconfirmed'. "
-        "Use the exact owner_id from the People list; a person mentioned with the term is a likely "
-        "owner. Give a numeric confidence from 0.6 to 0.7 for an inferred term, never a word such as "
+        "Use an exact owner_id from the People list for the most relevant person to ask. "
+        "A person explicitly linked to the term is preferred; otherwise infer a suggested contact "
+        "from the listed teams and roles. This is not confirmation of ownership. Do not leave "
+        "owner_id empty for a company term. Give confidence 0.6 when the contact is inferred, "
+        "otherwise 0.6 to 0.7 for an inferred term, never a word such as "
         "'low'. Use at most 0.7 when the definition is inferred. Do not use null for meaning. "
         "For anything else set is_company_term=false, meaning='', owner_id='', confidence=0. "
         'Reply with JSON: {"terms":[{"term","is_company_term","meaning","owner_id","confidence"}]}.')

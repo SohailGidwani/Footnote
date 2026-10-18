@@ -1,3 +1,5 @@
+import pytest
+
 from app.db import short_name
 from app.matcher import Matcher, tokens
 
@@ -56,3 +58,18 @@ def test_short_acronyms_never_fuzzy_match_ordinary_words(pack):
     m = matcher_for(pack)
     assert m.find("the driver said that was a dry run, not an array or a bomb") == []
     assert m.find("we had a good lunch and talked about the weather") == []
+
+
+@pytest.mark.parametrize(("term", "spoken"), [
+    ("runbook", "run book"),
+    ("starboard", "star board"),
+    ("signal path", "signalpath"),
+])
+def test_matcher_handles_word_boundaries_without_manual_aliases(term, spoken):
+    m = Matcher([{"id": "term", "term": term, "aliases": []}])
+    assert m.find(f"Please check the {spoken} today") == ["term"]
+
+
+def test_matcher_keeps_short_acronyms_out_of_compound_matching():
+    m = Matcher([{"id": "t_dri", "term": "DRI", "aliases": []}])
+    assert m.find("a d ri ver passed by") == []

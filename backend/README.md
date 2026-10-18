@@ -24,10 +24,11 @@ slow-path cards and template drafts; the glossary fast path and `/listen_text` a
 - **Fast path:** glossary match on the transcript, answered in the same `/listen` response
   (about 2 ms). At most 2 cards per call; pending cards take priority on the next response.
 - **Slow path:** capitalized words and acronyms not in the glossary go to StepFun in the
-  background, capped at 12 s. Its cards ride on the first `/listen` after the result is ready,
+  background, capped at 25 s. Its cards ride on the first `/listen` after the result is ready,
   and are cached as `source: "llm"` terms afterwards. Uncatalogued code meanings are hedged
   and have confidence at most 0.7. A coded term linked to one named coworker and work context
   can fall back to a generic, explicitly unconfirmed meaning if StepFun returns malformed data.
+  For inferred terms, the listed contact is a suggested person to ask, not confirmed ownership.
 - **Fade-out:** a term is issued at most once per meeting, including after a server restart;
   each issued card counts as one sighting.
   After 3 sightings, or a mute, it is never returned again.

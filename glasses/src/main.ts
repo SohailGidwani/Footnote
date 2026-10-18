@@ -79,7 +79,7 @@ function render() {
   for (const card of s.queued) {
     const li = document.createElement('li');
     const term = document.createElement('strong'); term.textContent = card.term;
-    const owner = document.createElement('span'); owner.textContent = `${card.owner_name} / ${card.owner_team}`;
+    const owner = document.createElement('span'); owner.textContent = `${card.source === 'llm' ? 'Suggested contact: ' : ''}${card.owner_name} / ${card.owner_team}`;
     li.append(term, owner); questions.append(li);
   }
   element('draft-section').hidden = s.phase !== 'ended';
