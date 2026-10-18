@@ -817,3 +817,23 @@ unrun check as passed.
   is a shared single-user synthetic demo, not multi-tenant authorization.
 - Updated server env examples, runtime Docker COPY, operator instructions and
   agent listing. Both Devpost and the Fetch Submission Agent are required.
+
+### 2026-10-18 — ASI follow-up extension deployed without G2 changes
+
+- Backend deployed first with the existing volume and no schema migration. The
+  entire pre-rollout digest matched after deployment; health and CORS passed.
+  Missing/wrong authorization on the new read endpoint returned 401; authorized
+  responses use `Cache-Control: no-store`.
+- Repeated the existing client request shapes on Railway: typed SEV2 -> card ->
+  queue -> repeat mute of an already-muted term -> end -> one Dana draft -> digest.
+  The new tool returned exactly that latest pending draft. This diagnostic creates
+  one sighting and one unsent test draft; no real email was sent by the checks.
+- Agent deployed second using the same private seed and shared server token.
+  Matching tokens were also saved in ignored local server envs for later local
+  runs. The original G2 Beta artifact was not rebuilt or changed.
+- Existing backend/agent deployment IDs and rollback source were retained
+  privately. Original main-checkout Beta verification docs were preserved in the
+  feature commit and a backup stash before fast-forward integration.
+- Real ASI:One preview, same-chat approval/session binding, cancellation and inbox
+  delivery remain pending Sohail's acceptance test. A new public shared chat
+  showing the complete action is still needed for the Fetch submission.

@@ -275,8 +275,8 @@ after deployment. No hosting account or domain changes are made here.
 `npm test` uses Node's built-in test runner for PCM integrity, API validation,
 timeouts, config/manifest generation, gestures, fade-out, timers and meeting
 failure handling. `npm run build` type-checks and builds both apps. The mock
-flow proves client behavior. Latest checks passed 79 backend tests, 24 client
-tests, and 21 agent tests plus 23 subtests. Local integration passed
+flow proves client behavior. Latest checks passed 85 backend tests, 24 client
+tests, and 43 agent tests plus 23 subtests. Local integration passed
 health/CORS checks, the browser text-to-draft/digest loop, and actual backend
 cards and gestures in the simulator. Sohail confirmed the full G2 testing
 flow was working; that device result is user-confirmed.
