@@ -9,3 +9,5 @@ env
 .DS_Store
 test-results/
 .playwright-mcp/
+/.claude/
+/skills-lock.json
