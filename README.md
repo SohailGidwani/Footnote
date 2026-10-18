@@ -1,18 +1,38 @@
 # Footnote
 
+![Footnote: Fresh eyes. Full context. Illustrative render of Even G2 glasses.](docs/images/footnote-hero.jpg)
+
 A little context for your first week. Footnote listens during a meeting,
 shows unfamiliar company terms and their owners on Even G2 glasses, and
 lets you queue questions to send after the meeting.
 
-This checkout implements Sohail's S1–S6 from the build plan:
+## Live demo
+
+| Try it | Link |
+| --- | --- |
+| Meeting digest dashboard | [Open dashboard](https://web-production-d828b.up.railway.app) |
+| Footnote Jargon Decoder in ASI:One | [Chat with the agent](https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r) |
+| Public draft review and approval demo | [View shared chat](https://asi1.ai/shared-chat/3e91ca9e-4730-4f89-bf64-0c24467f87e1) |
+| Agentverse profile | [View registered agent](https://agentverse.ai/agents/details/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r/profile) |
+| Production backend | [API origin](https://backend-production-17d9.up.railway.app) · [Health check](https://backend-production-17d9.up.railway.app/health) |
+
+The phone controls run inside the **Footnote** Even Hub Beta; the dashboard shows
+the post-meeting digest. For the physical glasses experience, follow [Run on G2](#run-on-g2).
+The hosted demo uses a synthetic Halcyon company glossary. Approved emails go to
+the configured demo inbox, with coworkers used as display recipients.
+
+## Project layout
 
 - `glasses/`: TypeScript + Vite + Even SDK. Three text containers, gestures,
   16 kHz PCM upload, meeting controls, queued questions, and draft approval.
   The phone interface is in `glasses/src/main.ts`, without a UI framework.
 - `web/`: React + Vite meeting digest: learned terms, people, sent messages.
-- Kartik owns `backend/`, `agent/`, and `data/`. The FastAPI backend and
-  company pack are included; see `backend/HANDOFF.md` and `backend/README.md`.
-  The clients use the frozen contract in `CLAUDE.md`.
+- `backend/`: FastAPI + SQLite, ElevenLabs transcription, StepFun inference and
+  Resend delivery. See [backend setup](backend/README.md); the clients use the
+  contract in `CLAUDE.md`.
+- `agent/`: Fetch.ai uAgents agent with glossary lookup, personalized meeting prep,
+  meeting recap and explicit approval of saved follow-ups in ASI:One.
+- `data/`: Synthetic company glossary, people and ownership records.
 
 ## Local setup
 
@@ -78,15 +98,26 @@ recipient, subject and body; reply `Approve <code>` for exactly one draft or
 `Cancel` to leave it unsent. Delivery uses the configured demo inbox. Codes expire
 in 10 minutes and work only in the previewing conversation.
 
+On 2026-10-18, Sohail confirmed a live ASI:One preview -> explicit approval ->
+email receipt against Railway. Resend reported delivery, but USC Proofpoint held
+the message in quarantine; it reached his inbox after release. For USC demo
+recipients, check [Proofpoint quarantine](https://viterbiit.usc.edu/services/usc-email/proofpoint-end-user-digest-user-guide/)
+if a delivered message is missing from the inbox.
+
 Operator setup and tests: [agent setup](agent/SETUP.md). The server-only
 `AGENT_API_TOKEN` must match on backend and agent; no extra client key or G2 build
 is needed. The backend's existing endpoints and phone approval flow are unchanged.
 
 Fetch requires both Devpost and its designated ASI:One Submission Agent; see the
 [official hackpack](https://www.fetch.ai/events/hackathons/la-hacks-ai-hackathon-2026/hackpack).
-Capture a new shared chat demonstrating preview, approval and the actual outcome.
+Public demos: [review and approve a follow-up](https://asi1.ai/shared-chat/3e91ca9e-4730-4f89-bf64-0c24467f87e1)
+and [personalized meeting prep](https://asi1.ai/shared-chat/886cf7a4-bd67-49f6-a14c-34ecbf9bcf07).
+Sohail confirmed the follow-up preview, approval and send confirmation are visible
+without signing in; inbox receipt was confirmed separately after quarantine release.
 
 ## Run on G2
+
+![Footnote G2 card: Bluebird, its meaning, Priya as the person to ask, and press to save a question. Even Hub simulator capture.](docs/images/g2-card.jpg)
 
 For the hosted backend, agent and digest, see [Railway setup](docs/railway-deployment.md).
 With a hosted backend, use its HTTPS origin in the glasses env and skip the

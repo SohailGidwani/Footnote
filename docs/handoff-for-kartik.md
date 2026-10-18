@@ -36,7 +36,8 @@ The status below is the initial handoff snapshot; current changes are in the cha
 Current Fetch agent: **Footnote Jargon Decoder**, `@footnote-jargon-decoder`,
 now running on Railway. Do not run its local copy at the same time.
 [ASI:One page](https://asi1.ai/ai/agent1qtm5jg9yr7e35ysxxahsvwc84g2yx95dkljesugg9xvdwmy8lp655tm2u2r).
-Public demo chat: https://asi1.ai/shared-chat/886cf7a4-bd67-49f6-a14c-34ecbf9bcf07
+Public action demo: https://asi1.ai/shared-chat/3e91ca9e-4730-4f89-bf64-0c24467f87e1
+Supporting meeting-prep demo: https://asi1.ai/shared-chat/886cf7a4-bd67-49f6-a14c-34ecbf9bcf07
 Older agent links below are historical; see the identity replacement entry at the bottom.
 
 ## Status and evidence
@@ -837,3 +838,38 @@ unrun check as passed.
 - Real ASI:One preview, same-chat approval/session binding, cancellation and inbox
   delivery remain pending Sohail's acceptance test. A new public shared chat
   showing the complete action is still needed for the Fetch submission.
+
+### 2026-10-18 — ASI follow-up approval and email receipt confirmed
+
+- Sohail previewed the saved SEV2 draft in ASI:One, explicitly approved it and
+  received the agent's send confirmation for Dana Okafor. The Railway backend
+  logged one successful Resend request and marked that draft sent.
+- Resend's read API reported `delivered` to the configured demo inbox. Sohail
+  supplied the receiving server's SMTP response: `250 2.0.0 ... Message accepted
+  for delivery`. The message was initially absent from his normal mailbox.
+- His Proofpoint screenshot located the SEV2 message in USC's Spam - Quarantined
+  folder, alongside earlier Ravi/SOC2 and Priya/Bluebird emails. After release,
+  he confirmed: `Done, I have all the emails in the mail now`.
+- The live ASI preview -> explicit approval -> email receipt flow is now
+  user-confirmed. This particular draft originated from the typed Railway
+  diagnostic above; do not describe it as a new glasses-speech test. No code,
+  deployment, recipient setting or G2 artifact change was needed for quarantine.
+- Live ASI cancellation, code expiry and repeated-approval behavior remain
+  untested; their automated tests passed earlier. A new public shared chat of
+  the action is still needed. Existing G2 phone-lock, permission-denial, native
+  exit and latency checks remain outstanding.
+
+### 2026-10-18 — Public ASI follow-up chat ready for submission
+
+- Current action-demo shared chat:
+  https://asi1.ai/shared-chat/3e91ca9e-4730-4f89-bf64-0c24467f87e1
+- An anonymous HTTP request returned 200 with the same canonical URL and title
+  `Show Saved Meeting Questions`. Message bodies were absent from initial HTML;
+  this automated check alone does not verify conversation visibility.
+- Asked Sohail to check the draft preview, approval and send confirmation without
+  signing in. He confirmed `Yes visible` in incognito. Inbox receipt is separately
+  user-confirmed after the quarantine release above.
+- Use this action chat for the Fetch submission; keep the previous meeting-prep
+  chat as supporting evidence. Devpost and the Fetch Submission Agent submissions
+  are still pending. Live cancellation/expiry/duplicate-approval and remaining G2
+  reliability checks are not newly verified by sharing the chat.

@@ -41,7 +41,14 @@ Produces: Followups.reply(query, sender, conversation) -> str|None, called befor
 ## Task 3: Deploy and verify
 Files: docs/railway-deployment.md, agent/SETUP.md, agent/README.md, README.md and handoff.
 - [x] Fresh whole-change review; fix important issues with regression tests.
-- [ ] Retain known-good Railway deployment IDs and consistent volume configuration. Set shared token privately.
-- [ ] Deploy backend first, then verify health, CORS, digest preservation and old typed flow before agent deploy.
-- [ ] Deploy agent with the same seed, then verify ASI preview -> explicit approval -> one delivered demo email with Sohail. Do not send automated diagnostic emails.
-- [ ] Record actual evidence and outstanding checks; keep URLs, inbox and secrets out of Git. G2 artifact hash must remain unchanged.
+- [x] Retain known-good Railway deployment IDs and consistent volume configuration. Set shared token privately.
+- [x] Deploy backend first, then verify health, CORS, digest preservation and old typed flow before agent deploy.
+- [x] Deploy agent with the same seed, then verify ASI preview -> explicit approval -> one delivered demo email with Sohail. Do not send automated diagnostic emails.
+- [x] Record actual evidence and outstanding checks; keep inbox and secrets out of Git. G2 artifact hash must remain unchanged. Sohail subsequently authorized public production links in the README for submission.
+
+Acceptance: Sohail confirmed email receipt after releasing USC Proofpoint quarantine.
+Live ASI cancellation, expiry and duplicate approval remain untested; automated
+coverage passed. Public action chat:
+https://asi1.ai/shared-chat/3e91ca9e-4730-4f89-bf64-0c24467f87e1
+Anonymous HTTP 200 passed; Sohail confirmed preview, approval and send confirmation
+are visible in incognito. Inbox receipt was confirmed separately.
