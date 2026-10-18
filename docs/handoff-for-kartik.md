@@ -148,7 +148,8 @@ Done when ASI:One chat correctly answers "What does Bluebird mean at Halcyon?".
 Record the Agentverse profile URL and a public ASI:One shared chat URL in the
 changelog: both are required for Fetch submission and are fine to share.
 The agent answers only while running; record where it runs in the changelog.
-Registration, ASI:One chat and this agent implementation remain untested.
+The implementation, local tests, mailbox connection and Bluebird ASI:One reply
+are complete. Profile details and the two submission URLs remain to verify.
 
 ## Rules while Sohail sleeps
 
@@ -254,3 +255,14 @@ unrun check as passed.
   configuration reminder required no code change or restart.
 - A live ASI:One Bluebird chat and the public profile/chat URLs remain to be
   verified and recorded. The agent is still running locally for that check.
+
+### 2026-10-17 — ASI:One Bluebird reply
+
+- The user sent the Bluebird question in ASI:One and reported the reply:
+  `Bluebird: v3 navigation stack rewrite. Owner: Priya Raman (Autonomy).`
+  This matches `data/company_pack.json` and the local chat handler test.
+- Agentverse mailbox registration was confirmed in the local agent log. The
+  exact live chat reply is user-reported; the local handler does not currently
+  log incoming chat text. The agent is running on this Windows checkout.
+- Agentverse profile details, profile URL and public shared chat URL are still
+  pending; do not claim those as submitted until they are recorded here.
