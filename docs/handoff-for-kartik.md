@@ -149,8 +149,9 @@ Record the Agentverse profile URL and a public ASI:One shared chat URL in the
 changelog: both are required for Fetch submission and are fine to share.
 The agent answers only while running; record where it runs in the changelog.
 The implementation, local tests, mailbox connection and Bluebird ASI:One reply
-are complete. Both public submission URLs are verified; Agentverse profile
-name, handle and published README need account-side review.
+are complete. Both public submission URLs are verified. The Agentverse name,
+description and shorter README are live; ASI:One's agent page still shows its
+older cached listing. The custom handle has not been independently verified.
 
 ## Rules while Sohail sleeps
 
@@ -282,3 +283,16 @@ unrun check as passed.
   the agent with the same address; the public ASI:One listing still showed the
   old README after refresh. Save the shorter README through Agentverse's
   Overview editor, then recheck the public listing.
+
+### 2026-10-17 — Agentverse listing refreshed
+
+- User updated the profile. In a signed-out browser, the public Agentverse
+  profile showed **Footnote Jargon Decoder**, the short new-hire description,
+  both badges, and only the three example questions in Agent Guide. The
+  `Run locally` and `Connect to Agentverse` sections were gone. The profile
+  was marked Active, ASI Available and Mailbox.
+- The separate public ASI:One agent page still displayed the older
+  `footnote_new_hire` name and setup sections at this check. This appears to
+  be a listing sync delay; no change to the agent code was made. Recheck that
+  page before submission. The user says the handle was changed, but the public
+  pages inspected here did not expose its full value.
