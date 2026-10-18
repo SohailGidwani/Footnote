@@ -107,10 +107,48 @@ Never put tunnel URLs, LAN IPs, inbox addresses or keys in tracked files/log evi
    from the immediate response. Target card-on-glasses time is about 4 seconds.
    Backend timings alone do not prove that target; G2 latency remains untested
    until Sohail measures it. Do not invent measurements from the chunk duration.
-4. **Stretch only after 1-3:** implement the Fetch.ai agent in `/agent` per PDF K7.
-   Call the LOCAL backend at `http://localhost:8000`, configured through a
-   `BACKEND_URL` env var so it can point at the deployed URL later.
-   Registration, ASI:One chat and deployment are all untested.
+
+### Task 4: Fetch.ai agent, basic block (required tonight)
+
+Goal: a Footnote agent registered on Agentverse that a user can find and chat
+with in ASI:One. Build in `/agent` using Python 3.11 and `uagents`.
+Follow the uAgents ASI:One example:
+
+- `Agent(name, seed from env, port=8001, mailbox=True, publish_agent_details=True)`.
+- Use `Protocol(spec=chat_protocol_spec)` with the chat protocol types from
+  `uagents_core.contrib.protocols.chat`; acknowledge every `ChatMessage` with
+  `ChatAcknowledgement`, reply with `TextContent`, then call
+  `agent.include(protocol, publish_manifest=True)`.
+
+Minimum behavior:
+
+- "What does <term> mean at Halcyon?" -> meaning + owner + team.
+- "What did I learn today?" / "Who should I meet?" -> summary from `GET /digest`.
+- Anything else -> a short help message listing what it can do.
+
+Read `data/company_pack.json` directly for term lookups. NEVER call
+`/listen_text` for lookups: it records sightings and would make terms fade out
+before they reach the glasses.
+
+Config belongs in ignored `/agent/.env`, never committed: `AGENT_SEED`,
+`BACKEND_URL` (`http://localhost:8000` for now; deployed URL on Sunday), and
+`STEPFUN_API_KEY` if used for intent routing. StepFun intent classification is
+encouraged for the prize; fall back to keyword matching if it fails.
+
+Registration: run the agent, open its printed Agent Inspector link, choose
+Connect -> Mailbox, open Agent Profile, and set a clear name
+("Footnote: new-hire jargon decoder") and handle. Write `/agent/README.md` for
+the Agentverse listing with both badges:
+
+![tag:innovationlab](https://img.shields.io/badge/innovationlab-3D8BD3)
+![tag:hackathon](https://img.shields.io/badge/hackathon-5F43F1)
+
+Include a one-paragraph description, capability keywords and three example queries.
+Done when ASI:One chat correctly answers "What does Bluebird mean at Halcyon?".
+Record the Agentverse profile URL and a public ASI:One shared chat URL in the
+changelog: both are required for Fetch submission and are fine to share.
+The agent answers only while running; record where it runs in the changelog.
+Registration, ASI:One chat and this agent implementation remain untested.
 
 ## Rules while Sohail sleeps
 
