@@ -364,8 +364,9 @@ unrun check as passed.
   No glossary query calls `/listen_text`. No agent draft sending or backend API
   addition was implemented, so the frozen API contract is unchanged.
 - The G2 renderer has explicit listening, term, queued, ready/empty, and error
-  states within 576 × 288. The phone companion and digest now share a refined
-  dark green presentation. SDK bridge, gestures, audio, API calls, and meeting
+  states within 576 × 288. The phone companion and digest initially shared a
+  dark green presentation, revised in the field notes design below. SDK bridge,
+  gestures, audio, API calls, and meeting
   transitions remain in their existing modules. `BACKEND_URL` stays localhost.
 - Local verification: six agent tests; 21 client tests; TypeScript checks for
   both clients; production builds for glasses and web. These do not replace a
@@ -383,3 +384,67 @@ unrun check as passed.
   clients. The optional StepFun intent router was deferred; the current
   keyword router handled all verified live questions. No deployment was
   performed. Sohail continues Ridgeline/“Line” and TLS work.
+
+### 2026-10-17 — Cached-fragment fix and model comparison
+
+- Later G2 feedback was a standalone LINE card, not verified full RIDGELINE output.
+  The app DB contained an older generic LINE inference. Now exclude generic
+  non-code LLM entries from matching and pending-card delivery, using the same
+  check as new inference. Keep their existing queue, drafts and history intact.
+  Full names and contextual meanings remain eligible; letter-number codes retain
+  their cautious fallback. No term-specific substitution was added.
+- Verification: 76 backend tests pass, including six old-cache/history cases;
+  one existing Starlette/httpx deprecation warning remains. Backend restarted
+  on port 8000. No database reset or email send; a read-only before/after hash
+  confirmed queued work and drafts were unchanged during the live API diagnostic.
+- Actual port-8000 diagnostic: a fresh Cedar Point phrase produced one candidate,
+  but StepFun hit the 25 s cap with zero added cards. Health and OPTIONS passed.
+  DNS cache reload did not permanently solve the earlier intermittent TLS errors.
+  No TLS bypass or saved DNS change was made.
+- With Sohail's permission, compared models in isolated synthetic calls, keeping
+  the full company pack, low reasoning and JSON schema. Existing prompt:
+  Step 5 Preview timed out after 35 s; 3.7 Flash returned a Ridgeline meaning in
+  12.95 s; 3.5 Flash 2603 returned one in 30.55 s. These are individual samples.
+- Shorter prompt: Step 5 returned a meaning in 30.68 s. A 3.78 s 3.7 Flash result
+  rejected Ridgeline, so it is not a successful fast-card result. Restoring the
+  absent-from-pack project rule gave full-name meanings for Ridgeline in 8.49 s
+  and Cedar Point in 15.01 s, with suggested contacts at confidence 0.6.
+- Successful TLS setup took under a second in these comparisons; waiting for
+  response headers dominated. Completed benchmark calls cost approximately $0.02
+  from reported token usage and official rates; timed-out usage was unavailable.
+  App model and prompt remain unchanged. No model switch or new G2 latency is
+  verified; the plan still requires runtime Step-5 Preview use for the prize.
+
+### 2026-10-17 — Meeting Fieldnotes design and code
+
+- Merged Sohail's latest `origin/main` commit `4e18db4` into `kartik/paper-ui`.
+  His cached-fragment backend fix and its notes above are preserved. No backend
+  API or endpoint was changed by the design work.
+- Editable Paper file: https://app.paper.design/file/01M56HH1VJ2BSH57HAFMAF1RED/p-1-0
+  Its first page compares three directions; Field notes was chosen. The next
+  pages contain three 390 × 844 phone states and desktop/mobile digest frames.
+  Tokens, type roles, interaction hierarchy and review images are documented
+  in `design/FIELDNOTES.md`.
+- The phone now puts Start listening and current G2 context first, reveals card
+  actions only when a term exists, keeps End meeting accessible, numbers saved
+  questions, and puts draft approval at the top after ending. The digest now
+  reads like a ruled meeting ledger, with a focused G2 memory strip. Both use
+  cool paper, spruce ink, square controls and restrained copy.
+- G2 keeps the existing three containers and single event capture at 576 × 288.
+  Brightness values are now status 6, term 15, detail 11 on the supported 0–15
+  scale. The browser's G2 preview is conceptual; the firmware font cannot be
+  replaced with the preview's font. Physical device fit/brightness still needs
+  an on-device check.
+- Before/after evidence is in `design/evidence/`: the baseline
+  `phone-before.png` / `digest-before.png`, the Paper exports named
+  `paper-directions.jpg`, `paper-phone-*.jpg`, `paper-digest-*.jpg`, and the
+  local implementation screenshots named `phone-fieldnotes-*.jpg` and
+  `digest-fieldnotes-*.jpg`.
+- In local demo mode, the phone completed Start listening → Bluebird card →
+  save question → End meeting → draft review without sending email. Desktop
+  and mobile digest screenshots were checked. All 21 glasses/client tests and
+  both TypeScript checks pass. After the merge, 76 backend tests and both
+  production client builds pass. The backend test run reports the existing
+  Starlette/httpx deprecation warning.
+- This is local work only. Client `BACKEND_URL` remains
+  `http://localhost:8000`; no deployment was performed.
